@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>타임박싱 — 우리 팀의 하루</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --bg: #F5F7FB; --surface: #FFFFFF; --surface-2: #F0F3F8; --surface-3: #E5EAF2;
+    --ink: #1A2233; --ink-2: #4A5468; --ink-3: #8A93A6; --ink-4: #B8C0D0;
+    --rule: #E5EAF2; --rule-strong: #CBD2DE;
+    --brand: #3B5BFE; --brand-hover: #2E48D6; --brand-soft: #EAEFFF;
+    --danger: #E14B4B; --danger-soft: #FEEAEA;
+    --c-blue-from: #4F8BFF; --c-blue-to: #3B5BFE;
+    --c-cyan-from: #4FD1E0; --c-cyan-to: #2BB6CA;
+    --c-orange-from: #FFA85C; --c-orange-to: #F47A2B;
+    --c-green-from: #5FD18E; --c-green-to: #34B86A;
+    --c-blue: #3B5BFE; --c-cyan: #2BB6CA; --c-orange: #F47A2B; --c-green: #34B86A;
+    --shadow-sm: 0 1px 2px rgba(20,30,60,0.05);
+    --shadow-md: 0 4px 14px rgba(20,30,60,0.08);
+    --shadow-lg: 0 8px 28px rgba(20,30,60,0.12);
+    --sans: 'Pretendard', -apple-system, system-ui, sans-serif;
+    --mono: 'SF Mono', ui-monospace, monospace;
+    --slot-h: 22px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; min-height: 100%; }
+  button, input, textarea, select { font-family: inherit; font-size: inherit; color: inherit; }
+  button { cursor: pointer; background: none; border: none; }
+
+  /* ===== Topbar ===== */
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--rule); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .logo { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 14px; }
+  .brand .mark { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+  .brand .tag { font-size: 11px; color: var(--ink-3); font-weight: 500; }
+  .user-chip { display: flex; align-items: center; gap: 10px; padding: 4px 10px 4px 4px; border-radius: 100px; transition: background 0.15s; cursor: pointer; position: relative; }
+  .user-chip:hover { background: var(--surface-2); }
+  .user-chip .avatar { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; }
+  .user-chip .info { line-height: 1.2; }
+  .user-chip .info .name { font-size: 13px; font-weight: 600; }
+  .user-chip .info .role { font-size: 10px; color: var(--ink-3); }
+  .user-chip .info .role.manager { color: var(--brand); font-weight: 700; }
+  .ghost-btn { color: var(--ink-3); font-size: 12px; font-weight: 500; padding: 6px 10px; border-radius: 6px; }
+  .ghost-btn:hover { background: var(--surface-2); color: var(--ink); }
+
+  /* User menu dropdown */
+  .user-menu { position: absolute; top: calc(100% + 4px); right: 0; background: var(--surface); border-radius: 8px; box-shadow: var(--shadow-lg); min-width: 180px; padding: 6px; z-index: 100; }
+  .user-menu button { display: block; width: 100%; text-align: left; padding: 8px 12px; border-radius: 4px; font-size: 13px; }
+  .user-menu button:hover { background: var(--surface-2); }
+  .user-menu .danger { color: var(--danger); }
+
+  /* ===== Sub nav ===== */
+  .subnav { background: var(--surface); border-bottom: 1px solid var(--rule); padding: 0 24px; display: flex; gap: 4px; align-items: center; justify-content: space-between; }
+  .subnav-tabs { display: flex; gap: 0; }
+  .subnav-tabs button { padding: 14px 16px; font-size: 13px; font-weight: 600; color: var(--ink-3); border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .subnav-tabs button.active { color: var(--brand); border-bottom-color: var(--brand); }
+  .subnav-tabs button:hover { color: var(--ink); }
+
+  .date-nav { display: flex; align-items: center; gap: 6px; padding: 8px 0; }
+  .date-nav button { padding: 6px 10px; border-radius: 6px; font-size: 12px; color: var(--ink-2); font-weight: 600; }
+  .date-nav button:hover { background: var(--surface-2); color: var(--ink); }
+  .date-nav .nav-arrow { width: 28px; height: 28px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .date-nav .current { padding: 6px 12px; background: var(--surface-2); border-radius: 6px; font-size: 13px; font-weight: 600; font-feature-settings: 'tnum' on; }
+  .date-nav .current.today { background: var(--brand-soft); color: var(--brand); }
+
+  /* ===== Login ===== */
+  .login-shell { min-height: calc(100vh - 60px); display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+  .login-card { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-lg); width: 100%; max-width: 460px; overflow: hidden; }
+  .login-hero { background: linear-gradient(135deg, #4F8BFF, #3B5BFE); padding: 30px; color: white; }
+  .login-hero h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 8px; }
+  .login-hero p { font-size: 13px; opacity: 0.92; line-height: 1.6; }
+  .login-body { padding: 24px 30px 30px; }
+  .field-label { display: block; font-size: 11px; color: var(--ink-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .field-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--rule); background: var(--surface); font-size: 14px; font-weight: 500; border-radius: 8px; margin-bottom: 14px; outline: none; transition: border-color 0.15s; }
+  .field-input:focus { border-color: var(--brand); }
+  .field-input.pin { letter-spacing: 0.3em; font-family: var(--mono); text-align: center; font-size: 18px; }
+  .form-help { color: var(--ink-3); font-size: 11px; margin-top: -10px; margin-bottom: 14px; line-height: 1.5; }
+  .form-error { color: var(--danger); font-size: 12px; margin-top: -8px; margin-bottom: 12px; font-weight: 500; }
+  .btn-primary { background: var(--brand); color: white; padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; width: 100%; transition: background 0.15s; }
+  .btn-primary:hover { background: var(--brand-hover); }
+  .btn-primary:disabled { background: var(--ink-4); cursor: not-allowed; }
+  .btn-secondary { background: var(--surface-2); color: var(--ink); padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; }
+  .btn-secondary:hover { background: var(--surface-3); }
+  .btn-danger { background: var(--danger); color: white; padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; }
+  .btn-danger:hover { background: #C73838; }
+
+  .login-divider { margin: 20px 0 14px; padding-top: 16px; border-top: 1px solid var(--rule); }
+  .login-divider h3 { font-size: 11px; color: var(--ink-3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .roster { display: flex; flex-wrap: wrap; gap: 6px; }
+  .roster-chip { padding: 8px 12px; background: var(--surface-2); border: 1.5px solid transparent; border-radius: 100px; font-size: 13px; font-weight: 500; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .roster-chip:hover { background: var(--brand-soft); border-color: var(--brand); }
+  .roster-chip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); }
+  .roster-chip .dot.manager { background: var(--brand); }
+  .roster-chip .badge { font-size: 9px; padding: 1px 5px; background: var(--c-orange); color: white; border-radius: 4px; margin-left: 2px; }
+
+  /* ===== Daily 3-column ===== */
+  .daily { display: grid; grid-template-columns: 340px 1fr 300px; gap: 14px; padding: 14px; min-height: calc(100vh - 110px); }
+  .col { background: var(--surface); border-radius: 12px; padding: 20px; overflow-y: auto; box-shadow: var(--shadow-sm); max-height: calc(100vh - 138px); }
+  .col-header { margin-bottom: 16px; }
+  .col-header h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+  .col-header .step { display: inline-block; font-size: 11px; font-weight: 700; color: var(--brand); background: var(--brand-soft); padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; letter-spacing: 0.04em; }
+  .readonly-banner { background: var(--ink); color: white; padding: 8px 24px; font-size: 12px; font-weight: 600; text-align: center; }
+
+  /* Action bar */
+  .action-bar { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 14px; background: var(--surface); border-bottom: 1px solid var(--rule); align-items: center; }
+  .action-bar .pill-btn { padding: 6px 12px; font-size: 12px; font-weight: 600; background: var(--surface-2); color: var(--ink-2); border-radius: 100px; }
+  .action-bar .pill-btn:hover { background: var(--brand-soft); color: var(--brand); }
+  .action-bar .pill-btn.primary { background: var(--brand-soft); color: var(--brand); }
+  .action-bar .pill-btn.primary:hover { background: var(--brand); color: white; }
+
+  /* Morning plan */
+  .morning { background: linear-gradient(135deg, #F5F7FB, #EAEFFF); padding: 14px; border-radius: 10px; margin-bottom: 18px; border: 1px solid var(--brand-soft); }
+  .morning .label { font-size: 10px; font-weight: 700; color: var(--brand); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .morning textarea { width: 100%; border: none; background: transparent; resize: vertical; min-height: 48px; font-size: 13px; line-height: 1.5; outline: none; font-weight: 500; }
+  .morning textarea::placeholder { color: var(--ink-4); font-weight: 400; }
+  .morning .helper { font-size: 11px; color: var(--ink-3); margin-top: 6px; line-height: 1.5; }
+
+  /* Task input */
+  .task-add { display: flex; gap: 6px; margin-bottom: 10px; }
+  .task-add input { flex: 1; padding: 9px 11px; border: 1.5px solid var(--rule); background: var(--surface); border-radius: 8px; font-size: 13px; outline: none; }
+  .task-add input:focus { border-color: var(--brand); }
+  .task-add button { padding: 0 14px; background: var(--brand); color: white; border-radius: 8px; font-size: 13px; font-weight: 600; }
+  .task-add button:hover { background: var(--brand-hover); }
+
+  .empty-pool { padding: 16px 14px; background: var(--surface-2); border-radius: 8px; text-align: center; font-size: 12px; color: var(--ink-3); line-height: 1.6; margin-bottom: 10px; }
+  .empty-pool strong { color: var(--ink-2); font-weight: 700; display: block; margin-bottom: 4px; }
+  .info-tip { background: var(--brand-soft); border-radius: 8px; padding: 9px 12px; margin-bottom: 10px; font-size: 11px; color: var(--ink-2); line-height: 1.5; }
+  .info-tip strong { color: var(--brand); display: block; margin-bottom: 2px; font-weight: 700; }
+
+  .task-pool { display: flex; flex-direction: column; gap: 8px; }
+  .task-card { border: 1.5px solid var(--rule); padding: 10px; border-radius: 10px; background: var(--surface); transition: all 0.15s; }
+  .task-card:hover { border-color: var(--rule-strong); }
+  .task-card.placed { background: var(--surface-2); border-style: dashed; }
+  .task-card.placed .name { text-decoration: line-through; color: var(--ink-3); }
+  .task-card .name { font-size: 13px; font-weight: 600; line-height: 1.4; margin-bottom: 8px; word-break: keep-all; }
+  .task-card .name .placed-time { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--brand); margin-left: 6px; }
+  .task-card .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .task-card .row:last-child { margin-bottom: 0; }
+
+  .size-pills { display: flex; gap: 2px; background: var(--surface-2); padding: 2px; border-radius: 6px; }
+  .size-pills button { width: 28px; height: 24px; font-family: var(--mono); font-size: 11px; font-weight: 700; border-radius: 4px; color: var(--ink-2); }
+  .size-pills button.active { background: var(--surface); color: var(--brand); box-shadow: var(--shadow-sm); }
+  .color-dots { display: flex; gap: 6px; }
+  .color-dot { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; position: relative; }
+  .color-dot:hover { transform: scale(1.1); }
+  .color-dot.active::after { content: ''; position: absolute; inset: -3px; border: 2px solid var(--ink); border-radius: 50%; }
+  .color-dot.blue { background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); }
+  .color-dot.cyan { background: linear-gradient(135deg, var(--c-cyan-from), var(--c-cyan-to)); }
+  .color-dot.orange { background: linear-gradient(135deg, var(--c-orange-from), var(--c-orange-to)); }
+  .color-dot.green { background: linear-gradient(135deg, var(--c-green-from), var(--c-green-to)); }
+
+  .place-row { display: flex; gap: 5px; padding-top: 8px; border-top: 1px solid var(--rule); margin-top: 2px; }
+  .place-row select { flex: 1; padding: 7px 9px; border: 1.5px solid var(--rule); border-radius: 6px; background: var(--surface); font-size: 12px; font-family: var(--mono); font-weight: 600; outline: none; }
+  .place-row select:focus { border-color: var(--brand); }
+  .place-row .add-btn { padding: 0 12px; background: var(--brand); color: white; border-radius: 6px; font-size: 12px; font-weight: 700; }
+  .place-row .add-btn:hover { background: var(--brand-hover); }
+  .place-row .del-btn { padding: 0 8px; color: var(--ink-3); font-size: 16px; border-radius: 6px; }
+  .place-row .del-btn:hover { background: var(--danger-soft); color: var(--danger); }
+  .placed-row { padding-top: 8px; border-top: 1px solid var(--rule); margin-top: 2px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--ink-3); }
+  .placed-row .undo { color: var(--brand); font-weight: 600; text-decoration: underline; }
+
+  .tip-box { margin-top: 16px; padding: 12px; background: var(--surface-2); border-radius: 10px; font-size: 11px; line-height: 1.6; color: var(--ink-2); }
+  .tip-box strong { display: block; font-size: 11px; font-weight: 700; color: var(--ink); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .tip-box ol { padding-left: 16px; margin-top: 4px; }
+
+  /* Timeline */
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink-2); font-weight: 500; }
+  .legend-swatch { width: 11px; height: 11px; border-radius: 3px; }
+  .legend-swatch.blue { background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); }
+  .legend-swatch.cyan { background: linear-gradient(135deg, var(--c-cyan-from), var(--c-cyan-to)); }
+  .legend-swatch.orange { background: linear-gradient(135deg, var(--c-orange-from), var(--c-orange-to)); }
+  .legend-swatch.green { background: linear-gradient(135deg, var(--c-green-from), var(--c-green-to)); }
+
+  .timeline-hint { font-size: 12px; color: var(--ink-3); background: var(--surface-2); padding: 9px 13px; border-radius: 8px; margin-bottom: 12px; line-height: 1.5; }
+  .timeline-hint strong { color: var(--ink); }
+
+  .timeline { position: relative; border-left: 1.5px solid var(--rule); margin-left: 50px; }
+  .hour-row { position: relative; height: calc(var(--slot-h) * 4); border-bottom: 1px solid var(--rule); }
+  .hour-row .hour-label { position: absolute; left: -50px; top: -8px; width: 44px; text-align: right; font-family: var(--mono); font-size: 11px; color: var(--ink-3); font-weight: 600; }
+  .slot { position: absolute; left: 0; right: 0; height: var(--slot-h); }
+  .slot.half { border-top: 1px dashed var(--rule); }
+  .slot.now { background: linear-gradient(to right, rgba(244,122,43,0.15), transparent); border-top: 2px solid var(--c-orange); }
+  .slot.drag-target { background: var(--brand-soft); }
+
+  .block { position: absolute; left: 8px; right: 8px; border-radius: 8px; padding: 7px 11px; font-size: 12px; line-height: 1.3; color: white; overflow: hidden; cursor: pointer; z-index: 2; box-shadow: 0 2px 6px rgba(20,30,60,0.15); transition: all 0.1s; }
+  .block:hover { box-shadow: 0 4px 12px rgba(20,30,60,0.2); transform: translateY(-1px); }
+  .block.blue { background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); }
+  .block.cyan { background: linear-gradient(135deg, var(--c-cyan-from), var(--c-cyan-to)); }
+  .block.orange { background: linear-gradient(135deg, var(--c-orange-from), var(--c-orange-to)); }
+  .block.green { background: linear-gradient(135deg, var(--c-green-from), var(--c-green-to)); }
+  .block.done { opacity: 0.55; }
+  .block.done .name { text-decoration: line-through; }
+  .block .time { font-family: var(--mono); font-size: 10px; font-weight: 600; opacity: 0.9; margin-bottom: 2px; }
+  .block .name { font-weight: 600; }
+  .block .actions { position: absolute; top: 5px; right: 8px; display: none; gap: 3px; }
+  .block:hover .actions { display: flex; }
+  .block .actions button { background: rgba(255,255,255,0.25); color: white; width: 22px; height: 22px; border-radius: 4px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .block .actions button:hover { background: rgba(255,255,255,0.4); }
+
+  /* Right column cards */
+  .stats-card, .review-card { background: var(--surface-2); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+  .stats-card h3, .review-card h3 { font-size: 11px; color: var(--ink-3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .review-card h3 { font-size: 13px; color: var(--ink); text-transform: none; letter-spacing: 0; }
+  .stat-bar { height: 10px; background: var(--surface); border-radius: 10px; overflow: hidden; display: flex; margin-bottom: 12px; }
+  .stat-bar span { height: 100%; }
+  .stat-bar .blue { background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); }
+  .stat-bar .cyan { background: linear-gradient(135deg, var(--c-cyan-from), var(--c-cyan-to)); }
+  .stat-bar .orange { background: linear-gradient(135deg, var(--c-orange-from), var(--c-orange-to)); }
+  .stat-bar .green { background: linear-gradient(135deg, var(--c-green-from), var(--c-green-to)); }
+  .stat-rows { display: flex; flex-direction: column; gap: 6px; }
+  .stat-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+  .stat-row .sw { width: 10px; height: 10px; border-radius: 3px; }
+  .stat-row .sw.blue { background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); }
+  .stat-row .sw.cyan { background: linear-gradient(135deg, var(--c-cyan-from), var(--c-cyan-to)); }
+  .stat-row .sw.orange { background: linear-gradient(135deg, var(--c-orange-from), var(--c-orange-to)); }
+  .stat-row .sw.green { background: linear-gradient(135deg, var(--c-green-from), var(--c-green-to)); }
+  .stat-row .num { margin-left: auto; font-family: var(--mono); font-weight: 600; color: var(--ink); }
+  .total-line { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--surface-3); font-family: var(--mono); font-size: 11px; color: var(--ink-3); font-weight: 600; }
+
+  .rabbit-card { background: linear-gradient(135deg, #FFF4E8, #FFEAD3); padding: 14px; border-radius: 10px; margin-bottom: 14px; border: 1px solid #FFDDA8; }
+  .rabbit-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .rabbit-card p { font-size: 11px; color: var(--ink-2); line-height: 1.5; margin-bottom: 10px; }
+  .rabbit-card .counter { display: flex; align-items: center; justify-content: space-between; }
+  .rabbit-card .count { font-size: 28px; font-weight: 800; color: var(--c-orange); }
+  .rabbit-card button { padding: 7px 12px; background: var(--surface); border-radius: 6px; font-size: 12px; font-weight: 600; border: 1.5px solid var(--c-orange); color: var(--c-orange); }
+  .rabbit-card button:hover { background: var(--c-orange); color: white; }
+  .review-card textarea { width: 100%; border: none; background: var(--surface); padding: 9px; border-radius: 6px; font-size: 12px; line-height: 1.5; resize: vertical; min-height: 80px; outline: none; font-family: var(--sans); }
+
+  .seven-card h3 { font-size: 11px; color: var(--ink-3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .seven-list { display: flex; flex-direction: column; }
+  .seven-item { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+  .seven-item:last-child { border-bottom: none; }
+  .seven-item .n { font-family: var(--mono); font-size: 11px; color: var(--brand); font-weight: 700; }
+
+  /* ===== Stats view ===== */
+  .stats-page { padding: 22px; max-width: 1100px; margin: 0 auto; }
+  .stats-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+  .stats-header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+  .range-tabs { display: flex; gap: 4px; background: var(--surface); padding: 4px; border-radius: 8px; box-shadow: var(--shadow-sm); }
+  .range-tabs button { padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--ink-3); border-radius: 6px; }
+  .range-tabs button.active { background: var(--brand); color: white; }
+  .scope-tabs { display: flex; gap: 4px; background: var(--surface); padding: 4px; border-radius: 8px; box-shadow: var(--shadow-sm); }
+  .scope-tabs button { padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--ink-3); border-radius: 6px; }
+  .scope-tabs button.active { background: var(--ink); color: white; }
+
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .stats-grid .full { grid-column: 1 / -1; }
+  .stats-tile { background: var(--surface); border-radius: 12px; padding: 22px; box-shadow: var(--shadow-sm); }
+  .stats-tile h3 { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+  .stats-tile .big-num { font-size: 36px; font-weight: 800; color: var(--brand); letter-spacing: -0.03em; line-height: 1; }
+  .stats-tile .sub { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+  .kpi-card { background: var(--surface); border-radius: 10px; padding: 16px; box-shadow: var(--shadow-sm); }
+  .kpi-card .label { font-size: 11px; color: var(--ink-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .kpi-card .value { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+  .kpi-card .unit { font-size: 13px; color: var(--ink-3); font-weight: 600; margin-left: 4px; }
+
+  /* Daily bars */
+  .day-bars { display: flex; gap: 4px; align-items: flex-end; height: 140px; padding: 8px 0; }
+  .day-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .day-bar { width: 100%; max-width: 26px; min-height: 2px; border-radius: 3px; background: var(--surface-2); display: flex; flex-direction: column-reverse; overflow: hidden; }
+  .day-bar > span { display: block; width: 100%; }
+  .day-bar > span.blue { background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); }
+  .day-bar > span.cyan { background: linear-gradient(135deg, var(--c-cyan-from), var(--c-cyan-to)); }
+  .day-bar > span.orange { background: linear-gradient(135deg, var(--c-orange-from), var(--c-orange-to)); }
+  .day-bar > span.green { background: linear-gradient(135deg, var(--c-green-from), var(--c-green-to)); }
+  .day-label { font-family: var(--mono); font-size: 9px; color: var(--ink-3); white-space: nowrap; }
+
+  /* Task counts table */
+  .task-counts { width: 100%; }
+  .task-counts thead th { text-align: left; font-size: 11px; color: var(--ink-3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 8px 10px; border-bottom: 1px solid var(--rule); }
+  .task-counts tbody td { padding: 10px; font-size: 13px; border-bottom: 1px solid var(--rule); }
+  .task-counts tbody tr:hover { background: var(--surface-2); }
+  .task-counts .name-cell { font-weight: 600; }
+  .task-counts .num-cell { text-align: right; font-family: var(--mono); font-weight: 600; }
+  .task-counts .bar-cell { width: 25%; }
+  .task-counts .bar { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+  .task-counts .bar > span { display: block; height: 100%; background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); }
+  .empty-table { text-align: center; padding: 32px 16px; color: var(--ink-3); font-size: 13px; font-style: italic; }
+
+  /* ===== Team view (manager) ===== */
+  .manager { padding: 22px; max-width: 1400px; margin: 0 auto; }
+  .manager .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .manager h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+  .manager .date { font-size: 13px; color: var(--ink-3); font-weight: 500; margin-top: 4px; }
+  .self-cta { background: linear-gradient(135deg, #4F8BFF, #3B5BFE); border-radius: 12px; padding: 20px 24px; color: white; margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-md); }
+  .self-cta h2 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .self-cta p { font-size: 13px; opacity: 0.92; }
+  .self-cta button { background: white; color: var(--brand); padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 14px; }
+  .self-cta .self-stats { display: flex; gap: 18px; margin-top: 6px; }
+  .self-cta .self-stat { font-size: 12px; opacity: 0.92; }
+  .self-cta .self-stat strong { font-size: 15px; font-weight: 700; display: block; }
+
+  .section-title { font-size: 12px; color: var(--ink-3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+  .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .member-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 16px; transition: all 0.15s; position: relative; }
+  .member-card .open-area { cursor: pointer; }
+  .member-card:hover { border-color: var(--brand); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .member-card .top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .member-card .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+  .member-card .name { font-size: 15px; font-weight: 700; }
+  .member-card .role-badge { font-size: 10px; font-weight: 700; background: var(--brand-soft); color: var(--brand); padding: 2px 6px; border-radius: 4px; }
+  .member-card .menu-btn { margin-left: auto; padding: 4px 8px; font-size: 16px; color: var(--ink-3); border-radius: 6px; cursor: pointer; line-height: 1; font-weight: 700; }
+  .member-card .menu-btn:hover { background: var(--surface-2); color: var(--ink); }
+  .member-card .menu { position: absolute; top: 50px; right: 14px; background: var(--surface); box-shadow: var(--shadow-lg); border-radius: 8px; padding: 6px; min-width: 160px; z-index: 10; }
+  .member-card .menu button { display: block; width: 100%; text-align: left; padding: 8px 12px; border-radius: 4px; font-size: 13px; }
+  .member-card .menu button:hover { background: var(--surface-2); }
+  .member-card .menu .danger { color: var(--danger); }
+  .morning-snippet { font-size: 12px; color: var(--ink-2); font-style: italic; line-height: 1.5; margin-bottom: 12px; min-height: 34px; padding: 8px 10px; background: var(--surface-2); border-radius: 6px; }
+  .mini-timeline { height: 100px; background: var(--surface-2); border-radius: 8px; position: relative; margin-bottom: 10px; overflow: hidden; }
+  .mini-block { position: absolute; left: 4px; right: 4px; border-radius: 3px; opacity: 0.95; }
+  .mini-block.blue { background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); }
+  .mini-block.cyan { background: linear-gradient(135deg, var(--c-cyan-from), var(--c-cyan-to)); }
+  .mini-block.orange { background: linear-gradient(135deg, var(--c-orange-from), var(--c-orange-to)); }
+  .mini-block.green { background: linear-gradient(135deg, var(--c-green-from), var(--c-green-to)); }
+  .mini-stat-bar { height: 5px; background: var(--surface-2); border-radius: 3px; overflow: hidden; display: flex; margin-bottom: 8px; }
+  .mini-stat-bar span { height: 100%; }
+  .mini-stat-bar .blue { background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); }
+  .mini-stat-bar .cyan { background: linear-gradient(135deg, var(--c-cyan-from), var(--c-cyan-to)); }
+  .mini-stat-bar .orange { background: linear-gradient(135deg, var(--c-orange-from), var(--c-orange-to)); }
+  .mini-stat-bar .green { background: linear-gradient(135deg, var(--c-green-from), var(--c-green-to)); }
+  .member-card .footer { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-3); font-weight: 500; }
+  .member-card .footer .planned { color: var(--ink); font-weight: 700; font-family: var(--mono); }
+  .empty { background: var(--surface); border-radius: 12px; text-align: center; padding: 56px 20px; color: var(--ink-3); }
+  .empty h3 { font-size: 16px; color: var(--ink-2); margin-bottom: 8px; }
+  .empty p { font-size: 13px; line-height: 1.6; }
+
+  /* ===== Modal ===== */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(20,30,60,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+  .modal { background: var(--surface); border-radius: 14px; max-width: 460px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+  .modal-head { padding: 22px 24px 8px; }
+  .modal-head h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+  .modal-head p { font-size: 13px; color: var(--ink-3); margin-top: 4px; line-height: 1.5; }
+  .modal-body { padding: 12px 24px 16px; }
+  .modal-body label { display: block; font-size: 11px; color: var(--ink-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin: 14px 0 6px; }
+  .modal-body label:first-child { margin-top: 0; }
+  .modal-body input, .modal-body select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--rule); border-radius: 8px; outline: none; font-size: 14px; transition: border-color 0.15s; }
+  .modal-body input:focus, .modal-body select:focus { border-color: var(--brand); }
+  .modal-body input[type="password"] { letter-spacing: 0.3em; font-family: var(--mono); text-align: center; font-size: 18px; }
+  .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-color-pick { display: flex; gap: 10px; padding: 4px 0; }
+  .modal-color-pick .color-dot { width: 28px; height: 28px; }
+  .modal-foot { padding: 14px 24px 20px; display: flex; gap: 8px; }
+  .modal-foot button { flex: 1; padding: 11px; border-radius: 8px; font-size: 14px; font-weight: 600; }
+  .modal-foot .cancel { background: var(--surface-2); color: var(--ink-2); }
+  .modal-foot .cancel:hover { background: var(--surface-3); }
+  .modal-foot .confirm { background: var(--brand); color: white; }
+  .modal-foot .confirm:hover { background: var(--brand-hover); }
+  .modal-foot .danger { background: var(--danger); color: white; }
+  .modal-foot .danger:hover { background: #C73838; }
+  .modal-foot .grow0 { flex: 0; padding: 11px 14px; }
+  .pin-display { background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); color: white; border-radius: 10px; padding: 18px; text-align: center; margin: 16px 0; }
+  .pin-display .label { font-size: 11px; opacity: 0.85; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .pin-display .pin { font-family: var(--mono); font-size: 32px; font-weight: 800; letter-spacing: 0.3em; }
+  .pin-display .note { font-size: 11px; opacity: 0.9; margin-top: 8px; line-height: 1.5; }
+
+  @media (max-width: 1100px) {
+    .daily { grid-template-columns: 1fr; }
+    .col { max-height: none; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+/* ============================================================
+   🔧 SUPABASE 설정 (여기 두 줄만 본인 값으로 바꾸세요)
+============================================================ */
+const SUPABASE_URL = 'https://vxwefqyyvpkbmhlgqlvb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4d2VmcXl5dnBrYm1obGdxbHZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NDk1OTcsImV4cCI6MjA5NzQyNTU5N30.phy5hy7tN0BjA8geQs-xTjV4-HDEePiGmUjwTHmunIM';
+/* ============================================================ */
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Simple loading/error overlay helper
+function showError(msg) {
+  let overlay = document.getElementById('global-error');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'global-error';
+    overlay.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#E14B4B;color:white;padding:14px 18px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,0.2);z-index:1000;max-width:300px;line-height:1.5;';
+    document.body.appendChild(overlay);
+  }
+  overlay.textContent = msg;
+  overlay.style.display = 'block';
+  setTimeout(() => { if (overlay) overlay.style.display = 'none'; }, 5000);
+}
+
+/* ============================================================
+   TIMEBOXING — Full version with PIN reset, stats, editing
+============================================================ */
+
+const COLORS = {
+  blue:   { label: '동적 업무', hint: '미팅, 협업' },
+  cyan:   { label: '중요 업무', hint: '우선 핵심' },
+  orange: { label: '여가·개인', hint: '쉼, 가족' },
+  green:  { label: '딥워크',    hint: '집중·글쓰기' }
+};
+const SEVEN = [
+  '매일 아침 타임박싱하는 시간 만들기',
+  '큰 업무는 작게 쪼개기',
+  '사소한 업무는 하나로 묶기',
+  '15·30·60분으로 시간 정하기',
+  '종류별로 색 사용하기',
+  '준비·점검·걱정 시간 빼놓기',
+  '끝낸 일은 남에게 공유하기'
+];
+const HOUR_START = 6;
+const HOUR_END = 22;
+const TOTAL_SLOTS = (HOUR_END - HOUR_START) * 4; // 15-min slots
+const RANGES = { '7': '최근 7일', '30': '최근 30일', '90': '최근 90일' };
+
+let state = {
+  view: 'loading',          // loading | login | app
+  subview: 'daily',         // daily | stats | team
+  currentUser: null,
+  managerOrigin: null,
+  roster: [],
+  today: todayStr(),
+  currentDate: todayStr(),  // date being viewed
+  data: emptyDay(),
+  managerData: {},
+  statsRange: '7',
+  statsScope: 'self',       // self | team
+  modal: null,
+  showUserMenu: false,
+  openMemberMenu: null      // member name whose ⋮ menu is open
+};
+
+function emptyDay() { return { morningPlan: '', tasks: [], rabbit: 0, review: '' }; }
+
+/* ===== Date/time helpers ===== */
+function todayStr() {
+  const d = new Date(); return ymd(d);
+}
+function ymd(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function parseDate(s) { return new Date(s + 'T00:00:00'); }
+function dateAdd(s, days) {
+  const d = parseDate(s); d.setDate(d.getDate() + days); return ymd(d);
+}
+function formatDateLong(s) {
+  const days = ['일','월','화','수','목','금','토'];
+  const dt = parseDate(s);
+  return `${dt.getMonth()+1}월 ${dt.getDate()}일 (${days[dt.getDay()]})`;
+}
+function formatDateShort(s) {
+  const dt = parseDate(s);
+  return `${dt.getMonth()+1}/${dt.getDate()}`;
+}
+function slotToTime(slot) {
+  const m = HOUR_START*60 + slot*15;
+  return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
+}
+function minutesToSlots(min) { return Math.round(min / 15); }
+function timeRange(slot, minutes) {
+  return `${slotToTime(slot)} – ${slotToTime(slot + minutesToSlots(minutes))}`;
+}
+function currentSlot() {
+  const d = new Date(); const s = Math.floor((d.getHours()*60 + d.getMinutes() - HOUR_START*60) / 15);
+  return (s >= 0 && s < TOTAL_SLOTS) ? s : -1;
+}
+function uid() { return Math.random().toString(36).slice(2,10); }
+function initials(n) { return n ? n.slice(0,1) : '?'; }
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s) { return escapeHtml(s); }
+function normalizeName(s) { return s.trim().toLowerCase(); }
+
+/* ===== Data migration ===== */
+function migrateTask(t) {
+  if (t.minutes !== undefined && t.minutes !== null) return t;
+  const sizeMap = { S: 15, M: 30, L: 60 };
+  const newTask = { ...t, minutes: sizeMap[t.size] || 30 };
+  delete newTask.size;
+  return newTask;
+}
+function migrateDay(d) {
+  return { ...emptyDay(), ...d, tasks: (d.tasks || []).map(migrateTask) };
+}
+
+/* ===== Storage (Supabase backend) ===== */
+function dbUserToMember(u) {
+  return { name: u.name, role: u.role, salt: u.salt, pinHash: u.pin_hash, mustChange: u.must_change || false };
+}
+function memberToDbUser(u) {
+  return { name: u.name, role: u.role, salt: u.salt, pin_hash: u.pinHash, must_change: u.mustChange || false };
+}
+function dbDayToData(d) {
+  return migrateDay({
+    morningPlan: d.morning_plan || '',
+    tasks: d.tasks || [],
+    rabbit: d.rabbit || 0,
+    review: d.review || ''
+  });
+}
+
+async function loadRoster() {
+  try {
+    const { data, error } = await sb.from('users').select('*').order('created_at');
+    if (error) throw error;
+    state.roster = (data || []).map(dbUserToMember);
+  } catch (e) {
+    console.error('loadRoster fail', e);
+    showError('서버에서 사용자 목록을 불러오지 못했습니다. 인터넷 연결과 Supabase 설정을 확인하세요.');
+    state.roster = [];
+  }
+}
+async function saveRoster() {
+  try {
+    if (state.roster.length === 0) return;
+    const records = state.roster.map(memberToDbUser);
+    const { error } = await sb.from('users').upsert(records, { onConflict: 'name' });
+    if (error) throw error;
+  } catch (e) {
+    console.error('saveRoster fail', e);
+    showError('저장 실패: ' + (e.message || ''));
+  }
+}
+async function loadDay(user, date) {
+  try {
+    const { data, error } = await sb.from('days').select('*').eq('user_name', user).eq('date', date).maybeSingle();
+    if (error) throw error;
+    return data ? dbDayToData(data) : emptyDay();
+  } catch (e) {
+    console.error('loadDay fail', e);
+    showError('하루치 데이터를 불러오지 못했습니다.');
+    return emptyDay();
+  }
+}
+async function saveDay() {
+  if (!state.currentUser || state.currentUser.viewingAs) return;
+  try {
+    const { error } = await sb.from('days').upsert({
+      user_name: state.currentUser.name,
+      date: state.currentDate,
+      morning_plan: state.data.morningPlan,
+      tasks: state.data.tasks,
+      rabbit: state.data.rabbit,
+      review: state.data.review,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_name,date' });
+    if (error) throw error;
+  } catch (e) {
+    console.error('saveDay fail', e);
+    showError('저장 실패: ' + (e.message || ''));
+  }
+}
+async function loadRange(name, days) {
+  const result = {};
+  for (let i = 0; i < days; i++) result[dateAdd(todayStr(), -i)] = emptyDay();
+  try {
+    const startDate = dateAdd(todayStr(), -(days - 1));
+    const { data, error } = await sb.from('days')
+      .select('*')
+      .eq('user_name', name)
+      .gte('date', startDate);
+    if (error) throw error;
+    (data || []).forEach(d => { result[d.date] = dbDayToData(d); });
+  } catch (e) {
+    console.error('loadRange fail', e);
+    showError('통계 데이터를 불러오지 못했습니다.');
+  }
+  return result;
+}
+async function loadAllToday() {
+  const r = {};
+  state.roster.forEach(m => { r[m.name] = emptyDay(); });
+  try {
+    const { data, error } = await sb.from('days').select('*').eq('date', state.today);
+    if (error) throw error;
+    (data || []).forEach(d => { r[d.user_name] = dbDayToData(d); });
+  } catch (e) {
+    console.error('loadAllToday fail', e);
+    showError('팀 데이터를 불러오지 못했습니다.');
+  }
+  return r;
+}
+// "Remember me" — use browser localStorage (only stores the user name)
+function rememberUser(u) {
+  try {
+    if (u) localStorage.setItem('timeboxing_remembered_name', u.name);
+    else localStorage.removeItem('timeboxing_remembered_name');
+  } catch {}
+}
+function getRememberedUser() {
+  try {
+    const name = localStorage.getItem('timeboxing_remembered_name');
+    return name ? { name } : null;
+  } catch { return null; }
+}
+
+/* ===== PIN ===== */
+async function hashPin(pin, salt) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${salt}:${pin}`));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function generateTempPin() { return String(Math.floor(1000 + Math.random() * 9000)); }
+
+async function registerUser(name, role, pin) {
+  const salt = uid();
+  const pinHash = await hashPin(pin, salt);
+  const user = { name, role, salt, pinHash, mustChange: false };
+  state.roster.push(user);
+  await saveRoster();
+  return user;
+}
+async function verifyPin(member, pin) {
+  const h = await hashPin(pin, member.salt);
+  return h === member.pinHash;
+}
+async function resetMemberPin(memberName) {
+  const idx = state.roster.findIndex(m => m.name === memberName);
+  if (idx === -1) return null;
+  const tempPin = generateTempPin();
+  const salt = uid();
+  const pinHash = await hashPin(tempPin, salt);
+  state.roster[idx] = { ...state.roster[idx], salt, pinHash, mustChange: true };
+  await saveRoster();
+  return tempPin;
+}
+async function changeOwnPin(currentPin, newPin) {
+  const me = state.roster.find(m => m.name === state.currentUser.name);
+  if (!me) return { ok: false, error: '사용자를 찾을 수 없습니다.' };
+  const ok = await verifyPin(me, currentPin);
+  if (!ok) return { ok: false, error: '현재 PIN이 일치하지 않습니다.' };
+  const salt = uid();
+  const pinHash = await hashPin(newPin, salt);
+  me.salt = salt; me.pinHash = pinHash; me.mustChange = false;
+  state.currentUser = { ...state.currentUser, salt, pinHash, mustChange: false };
+  await saveRoster();
+  return { ok: true };
+}
+
+/* ============================================================
+   RENDER ROUTER
+============================================================ */
+const app = document.getElementById('app');
+
+function render() {
+  if (state.view === 'loading') {
+    app.innerHTML = '<div style="padding:60px;text-align:center;color:var(--ink-3);">불러오는 중...</div>';
+  } else if (state.view === 'login') {
+    renderLogin();
+  } else if (state.view === 'app') {
+    if (state.subview === 'daily') renderDaily();
+    else if (state.subview === 'stats') renderStats();
+    else if (state.subview === 'team') renderTeam();
+  }
+  if (state.modal) renderModal(); else removeModal();
+  attachGlobalEvents();
+}
+
+/* ============================================================
+   LOGIN
+============================================================ */
+function renderLogin() {
+  app.innerHTML = `
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">TB</div>
+        <div>
+          <div class="mark">타임박싱</div>
+          <div class="tag">Better · Focus · Less</div>
+        </div>
+      </div>
+    </div>
+    <div class="login-shell">
+      <div class="login-card">
+        <div class="login-hero">
+          <h1>오늘 하루를 설계합니다</h1>
+          <p>아침 15분이 남은 15시간을 책임집니다.<br/>마크 자오 샌더스의 타임박싱 방법론.</p>
+        </div>
+        <div class="login-body">
+          ${state.roster.length > 0 ? `
+            <label class="field-label">등록된 사용자</label>
+            <div class="roster" style="margin-bottom:18px;">
+              ${state.roster.map(m => `
+                <button class="roster-chip" data-name="${escapeAttr(m.name)}">
+                  <span class="dot ${m.role === 'manager' ? 'manager' : ''}"></span>
+                  ${escapeHtml(m.name)}
+                  ${m.mustChange ? '<span class="badge">PIN 재설정</span>' : ''}
+                </button>
+              `).join('')}
+            </div>
+            <div class="login-divider"><h3>새로 등록하기</h3></div>
+          ` : ''}
+          <label class="field-label">이름</label>
+          <input id="login-name" class="field-input" type="text" placeholder="홍길동" autocomplete="off"/>
+          <label class="field-label">역할</label>
+          <select id="login-role" class="field-input">
+            <option value="member">팀원</option>
+            <option value="manager">팀장 (전체 조회 + 본인 타임박싱)</option>
+          </select>
+          <label class="field-label">PIN (숫자 4자리)</label>
+          <input id="login-pin" class="field-input pin" type="password" maxlength="4" inputmode="numeric" placeholder="••••"/>
+          <div class="form-help">다른 사람이 내 데이터를 보거나 수정하지 못하도록 잠그는 PIN입니다. 잊으면 팀장이 임시 PIN으로 재설정해 줄 수 있어요.</div>
+          <button class="btn-primary" id="login-btn">등록하고 시작</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('login-btn').onclick = handleRegister;
+  document.getElementById('login-pin').addEventListener('keydown', e => { if (e.key === 'Enter') handleRegister(); });
+  document.querySelectorAll('.roster-chip').forEach(btn => {
+    btn.onclick = () => {
+      const member = state.roster.find(x => x.name === btn.dataset.name);
+      if (member) openModal({ type: 'pin', member, error: '' });
+    };
+  });
+}
+
+async function handleRegister() {
+  const name = document.getElementById('login-name').value.trim();
+  const role = document.getElementById('login-role').value;
+  const pin = document.getElementById('login-pin').value.trim();
+  if (!name) return openModal({ type: 'alert', title: '이름이 필요해요', message: '이름을 입력해주세요.' });
+  if (!/^\d{4}$/.test(pin)) return openModal({ type: 'alert', title: 'PIN 형식', message: '숫자 4자리를 입력해주세요.' });
+  const existing = state.roster.find(m => m.name === name);
+  if (existing) {
+    return openModal({
+      type: 'alert',
+      title: '이미 등록된 이름',
+      message: `'${name}'은 이미 등록되어 있어요. 본인이라면 위 목록에서 이름을 선택해 PIN으로 로그인하세요. PIN을 잊었다면 팀장에게 재설정을 요청하세요.`
+    });
+  }
+  const user = await registerUser(name, role, pin);
+  await enterApp(user);
+}
+
+async function enterApp(user) {
+  state.currentUser = user;
+  rememberUser({ name: user.name, role: user.role });
+  state.view = 'app';
+  state.currentDate = state.today;
+  if (user.role === 'manager') {
+    state.subview = 'team';
+    state.managerData = await loadAllToday();
+  } else {
+    state.subview = 'daily';
+    state.data = await loadDay(user.name, state.currentDate);
+  }
+  render();
+}
+
+/* ============================================================
+   TOPBAR + SUBNAV
+============================================================ */
+function renderTopbar() {
+  const u = state.currentUser;
+  const displayRole = u.originalRole || u.role;
+  return `
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">TB</div>
+        <div>
+          <div class="mark">타임박싱</div>
+          <div class="tag">${state.today}</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        ${u.viewingAs ? `<button class="ghost-btn" id="back-team">← 팀 보기로</button>` : ''}
+        <div class="user-chip" id="user-chip">
+          <div class="avatar">${escapeHtml(initials(u.name))}</div>
+          <div class="info">
+            <div class="name">${escapeHtml(u.name)}</div>
+            <div class="role ${displayRole === 'manager' ? 'manager' : ''}">${displayRole === 'manager' ? '팀장' : '팀원'}</div>
+          </div>
+          ${state.showUserMenu ? `
+            <div class="user-menu">
+              <button id="menu-change-pin">PIN 변경</button>
+              <button class="danger" id="menu-logout">로그아웃</button>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSubnav() {
+  const u = state.currentUser;
+  if (u.viewingAs) return ''; // No subnav in read-only manager view
+  const isManager = u.role === 'manager';
+  const showDateNav = state.subview === 'daily';
+  return `
+    <div class="subnav">
+      <div class="subnav-tabs">
+        <button class="${state.subview === 'daily' ? 'active' : ''}" data-tab="daily">일일</button>
+        <button class="${state.subview === 'stats' ? 'active' : ''}" data-tab="stats">통계</button>
+        ${isManager ? `<button class="${state.subview === 'team' ? 'active' : ''}" data-tab="team">팀</button>` : ''}
+      </div>
+      ${showDateNav ? `
+        <div class="date-nav">
+          <button class="nav-arrow" id="date-prev" title="이전 날">‹</button>
+          <span class="current ${state.currentDate === state.today ? 'today' : ''}">${formatDateLong(state.currentDate)}${state.currentDate === state.today ? ' · 오늘' : ''}</span>
+          <button class="nav-arrow" id="date-next" title="다음 날">›</button>
+          ${state.currentDate !== state.today ? `<button id="date-today">오늘로</button>` : ''}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function attachGlobalEvents() {
+  // User menu toggle
+  const chip = document.getElementById('user-chip');
+  if (chip) {
+    chip.onclick = e => {
+      if (e.target.closest('.user-menu')) return;
+      state.showUserMenu = !state.showUserMenu;
+      render();
+    };
+  }
+  document.getElementById('menu-change-pin')?.addEventListener('click', e => {
+    e.stopPropagation();
+    state.showUserMenu = false;
+    openModal({ type: 'changePin', error: '' });
+  });
+  document.getElementById('menu-logout')?.addEventListener('click', async e => {
+    e.stopPropagation();
+    rememberUser(null);
+    state.currentUser = null;
+    state.showUserMenu = false;
+    state.view = 'login';
+    render();
+  });
+
+  // Click outside closes menus
+  document.body.onclick = e => {
+    if (state.showUserMenu && !e.target.closest('#user-chip')) {
+      state.showUserMenu = false;
+      render();
+    }
+    if (state.openMemberMenu && !e.target.closest('.member-card')) {
+      state.openMemberMenu = null;
+      render();
+    }
+  };
+
+  // Sub nav
+  document.querySelectorAll('[data-tab]').forEach(b => {
+    b.onclick = async () => {
+      state.subview = b.dataset.tab;
+      if (state.subview === 'team') state.managerData = await loadAllToday();
+      render();
+    };
+  });
+
+  // Date nav
+  document.getElementById('date-prev')?.addEventListener('click', async () => {
+    state.currentDate = dateAdd(state.currentDate, -1);
+    state.data = await loadDay(state.currentUser.name, state.currentDate);
+    render();
+  });
+  document.getElementById('date-next')?.addEventListener('click', async () => {
+    state.currentDate = dateAdd(state.currentDate, 1);
+    state.data = await loadDay(state.currentUser.name, state.currentDate);
+    render();
+  });
+  document.getElementById('date-today')?.addEventListener('click', async () => {
+    state.currentDate = state.today;
+    state.data = await loadDay(state.currentUser.name, state.currentDate);
+    render();
+  });
+
+  // Back from member view
+  document.getElementById('back-team')?.addEventListener('click', async () => {
+    if (state.managerOrigin) { state.currentUser = state.managerOrigin; state.managerOrigin = null; }
+    state.subview = 'team';
+    state.managerData = await loadAllToday();
+    render();
+  });
+}
+
+/* ============================================================
+   DAILY VIEW
+============================================================ */
+function renderDaily() {
+  const u = state.currentUser;
+  const readOnly = !!u.viewingAs;
+
+  app.innerHTML = `
+    ${renderTopbar()}
+    ${!readOnly ? renderSubnav() : ''}
+    ${readOnly ? `<div class="readonly-banner">읽기 전용 · ${escapeHtml(u.name)}님의 ${state.currentDate}</div>` : ''}
+    ${!readOnly ? renderActionBar() : ''}
+    <div class="daily">
+      <div class="col">
+        <div class="col-header">
+          <span class="step">01 · 계획</span>
+          <h2>아침 15분</h2>
+        </div>
+        <div class="morning">
+          <div class="label">오늘의 실행 의도</div>
+          <textarea id="morning-plan" placeholder="오전 10시가 되면, 나는 ___를 할 거야.">${escapeHtml(state.data.morningPlan)}</textarea>
+          <div class="helper">막연한 목표 대신 "언제·어디서·무엇을" 한 문장으로.</div>
+        </div>
+
+        <div class="col-header" style="margin-top: 6px;">
+          <span class="step">02 · 분해</span>
+          <h2>할 일 쪼개기</h2>
+        </div>
+
+        ${state.data.tasks.length === 0 ? `
+          <div class="empty-pool">
+            <strong>아직 할 일이 없습니다</strong>
+            큰 일은 5단계로 쪼개세요.
+          </div>
+        ` : `
+          <div class="info-tip">
+            <strong>사용법</strong>
+            시간(15·30·60분)과 색을 고른 뒤 시작 시각을 선택하고 <strong>+ 추가</strong>를 누르세요. 배치한 일정은 클릭으로 자유 수정 가능합니다.
+          </div>
+        `}
+
+        <div class="task-add">
+          <input id="task-input" type="text" placeholder="쪼갠 할 일 입력 (예: 자료 조사)"/>
+          <button id="task-add-btn">추가</button>
+        </div>
+
+        <div class="task-pool">
+          ${state.data.tasks.map(renderTaskCard).join('')}
+        </div>
+
+        <div class="tip-box">
+          <strong>일 쪼개기 예시 · 글쓰기</strong>
+          <ol>
+            <li>브레인스토밍 (15분)</li>
+            <li>자료 조사 (60분)</li>
+            <li>목차 나누기 (30분)</li>
+            <li>초안 1000자 쓰기 (60분)</li>
+            <li>수정하기 (15분)</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-header">
+          <span class="step">03 · 배치</span>
+          <h2>오늘의 타임라인</h2>
+        </div>
+        <div class="legend">
+          ${Object.entries(COLORS).map(([k, v]) => `
+            <div class="legend-item"><span class="legend-swatch ${k}"></span><span>${v.label}</span></div>
+          `).join('')}
+        </div>
+        ${state.data.tasks.filter(t => t.slot !== null && t.slot !== undefined).length === 0 ? `
+          <div class="timeline-hint">
+            <strong>비어 있는 하루입니다.</strong> 왼쪽에서 할 일을 추가하거나, <strong>"어제 일정 복사"</strong>로 시작하세요. 배치 후엔 블록을 클릭해 시작·지속 시간을 15분 단위로 자유 수정할 수 있어요.
+          </div>
+        ` : ''}
+        <div class="timeline">${renderTimeline()}</div>
+      </div>
+
+      <div class="col">
+        <div class="col-header">
+          <span class="step">04 · 회고</span>
+          <h2>오늘의 데이터</h2>
+        </div>
+        <div class="stats-card"><h3>색깔별 시간 비율</h3>${renderDayStats()}</div>
+        <div class="rabbit-card">
+          <h3>토끼굴 카운터</h3>
+          <p>알림, 잡담, 딴짓에 빠진 횟수를 기록하면 패턴이 보입니다.</p>
+          <div class="counter">
+            <span class="count">${state.data.rabbit}</span>
+            <button id="rabbit-add">+ 1</button>
+          </div>
+        </div>
+        <div class="review-card">
+          <h3>오늘의 회고</h3>
+          <textarea id="review-text" placeholder="잘 된 점, 다음에 바꿀 점">${escapeHtml(state.data.review)}</textarea>
+        </div>
+        <div class="seven-card">
+          <h3>기억할 7가지</h3>
+          <div class="seven-list">
+            ${SEVEN.map((s, i) => `<div class="seven-item"><span class="n">0${i+1}</span><span>${s}</span></div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  if (!readOnly) attachDailyEvents();
+}
+
+function renderActionBar() {
+  const hasTasks = state.data.tasks.length > 0;
+  const hasPlaced = state.data.tasks.some(t => t.slot !== null && t.slot !== undefined);
+  return `
+    <div class="action-bar">
+      <button class="pill-btn primary" id="copy-yesterday">📋 어제 일정 복사</button>
+      ${hasPlaced ? `<button class="pill-btn" id="export-csv">⇩ CSV 내보내기</button>` : ''}
+      ${hasTasks ? `<button class="pill-btn" id="clear-day">🗑 오늘 비우기</button>` : ''}
+      <div style="margin-left:auto; font-size:11px; color:var(--ink-3); font-weight:500;">
+        ${state.data.tasks.length}개 등록 · ${state.data.tasks.filter(t=>t.slot!=null).length}개 배치
+      </div>
+    </div>
+  `;
+}
+
+function renderTaskCard(t) {
+  const placed = t.slot !== null && t.slot !== undefined;
+  // Time options for select
+  const slotsNeeded = minutesToSlots(t.minutes);
+  let options = '<option value="">시작 시각</option>';
+  for (let s = 0; s + slotsNeeded <= TOTAL_SLOTS; s++) {
+    options += `<option value="${s}" ${t.pendingSlot === s ? 'selected' : ''}>${slotToTime(s)}</option>`;
+  }
+  return `
+    <div class="task-card ${placed ? 'placed' : ''}" draggable="${!placed}" data-id="${t.id}">
+      <div class="name">
+        ${escapeHtml(t.name)}
+        ${placed ? `<span class="placed-time">→ ${timeRange(t.slot, t.minutes)}</span>` : ''}
+      </div>
+      ${!placed ? `
+        <div class="row">
+          <div class="size-pills">
+            ${[15,30,60].map(m => `
+              <button class="${t.minutes === m ? 'active' : ''}" data-min="${m}" data-id="${t.id}">${m === 15 ? 'S' : m === 30 ? 'M' : 'L'}</button>
+            `).join('')}
+          </div>
+          <div class="color-dots">
+            ${Object.keys(COLORS).map(c => `
+              <span class="color-dot ${c} ${t.color === c ? 'active' : ''}" data-color="${c}" data-id="${t.id}" title="${COLORS[c].label}"></span>
+            `).join('')}
+          </div>
+        </div>
+        <div class="place-row">
+          <select data-time-select="${t.id}">${options}</select>
+          <button class="add-btn" data-place-btn="${t.id}">+ 추가</button>
+          <button class="del-btn" data-del="${t.id}" title="삭제">×</button>
+        </div>
+      ` : `
+        <div class="placed-row">
+          <span>${t.minutes}분 · ${COLORS[t.color].label}</span>
+          <button class="undo" data-unplace="${t.id}">↺ 다시 빼기</button>
+        </div>
+      `}
+    </div>
+  `;
+}
+
+function renderTimeline() {
+  const hours = [];
+  const nowSlot = (state.currentDate === state.today) ? currentSlot() : -1;
+  for (let h = HOUR_START; h < HOUR_END; h++) {
+    const hi = h - HOUR_START;
+    let slotsHtml = '';
+    for (let s = 0; s < 4; s++) {
+      const slot = hi*4 + s;
+      slotsHtml += `<div class="slot ${s===2 ? 'half' : ''} ${slot === nowSlot ? 'now' : ''}" style="top:${s*22}px" data-slot="${slot}"></div>`;
+    }
+    hours.push(`<div class="hour-row"><span class="hour-label">${String(h).padStart(2,'0')}:00</span>${slotsHtml}</div>`);
+  }
+  const blocks = state.data.tasks
+    .filter(t => t.slot !== null && t.slot !== undefined)
+    .map(t => {
+      const sc = minutesToSlots(t.minutes);
+      const top = t.slot * 22, height = sc * 22 - 3;
+      return `
+        <div class="block ${t.color} ${t.done ? 'done' : ''}" data-block="${t.id}" style="top:${top}px; height:${height}px;">
+          <div class="time">${timeRange(t.slot, t.minutes)}</div>
+          <div class="name">${escapeHtml(t.name)}</div>
+          <div class="actions">
+            <button data-toggle="${t.id}" title="완료">✓</button>
+            <button data-dup="${t.id}" title="복제">⎘</button>
+            <button data-edit="${t.id}" title="편집">⋯</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  return hours.join('') + blocks;
+}
+
+function renderDayStats() {
+  const totals = { blue:0, cyan:0, orange:0, green:0 };
+  let totalMin = 0;
+  state.data.tasks.forEach(t => {
+    if (t.slot !== null && t.slot !== undefined && t.color) {
+      totals[t.color] += t.minutes;
+      totalMin += t.minutes;
+    }
+  });
+  if (totalMin === 0) return '<div style="font-size:12px;color:var(--ink-3);padding:6px 0;">아직 배치된 작업이 없습니다.</div>';
+  const pct = n => Math.round((n/totalMin) * 100);
+  return `
+    <div class="stat-bar">${Object.entries(totals).map(([c,m]) => m > 0 ? `<span class="${c}" style="width:${(m/totalMin)*100}%"></span>` : '').join('')}</div>
+    <div class="stat-rows">
+      ${Object.entries(COLORS).map(([c,v]) => `
+        <div class="stat-row">
+          <span class="sw ${c}"></span><span>${v.label}</span>
+          <span class="num">${totals[c]}분 · ${pct(totals[c])}%</span>
+        </div>
+      `).join('')}
+    </div>
+    <div class="total-line">총 ${Math.floor(totalMin/60)}시간 ${totalMin%60}분 계획</div>
+  `;
+}
+
+/* ===== Daily events ===== */
+function attachDailyEvents() {
+  document.getElementById('morning-plan')?.addEventListener('input', e => {
+    state.data.morningPlan = e.target.value;
+    debouncedSave();
+  });
+  const addTask = () => {
+    const input = document.getElementById('task-input');
+    const name = input.value.trim();
+    if (!name) return;
+    state.data.tasks.push({ id: uid(), name, minutes: 30, color: 'blue', slot: null, done: false, pendingSlot: null });
+    input.value = '';
+    saveDay(); render();
+  };
+  document.getElementById('task-add-btn').onclick = addTask;
+  document.getElementById('task-input').addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+
+  document.querySelectorAll('.size-pills button[data-min]').forEach(b => {
+    b.onclick = () => {
+      const t = state.data.tasks.find(x => x.id === b.dataset.id);
+      if (t && t.slot === null) { t.minutes = parseInt(b.dataset.min); t.pendingSlot = null; saveDay(); render(); }
+    };
+  });
+  document.querySelectorAll('.color-dot[data-color]').forEach(d => {
+    d.onclick = () => {
+      const t = state.data.tasks.find(x => x.id === d.dataset.id);
+      if (t) { t.color = d.dataset.color; saveDay(); render(); }
+    };
+  });
+  document.querySelectorAll('[data-del]').forEach(b => {
+    b.onclick = () => {
+      state.data.tasks = state.data.tasks.filter(x => x.id !== b.dataset.del);
+      saveDay(); render();
+    };
+  });
+  document.querySelectorAll('[data-time-select]').forEach(sel => {
+    sel.onchange = () => {
+      const t = state.data.tasks.find(x => x.id === sel.dataset.timeSelect);
+      if (t) t.pendingSlot = sel.value === '' ? null : parseInt(sel.value);
+    };
+  });
+  document.querySelectorAll('[data-place-btn]').forEach(b => {
+    b.onclick = () => {
+      const t = state.data.tasks.find(x => x.id === b.dataset.placeBtn);
+      if (!t) return;
+      if (t.pendingSlot === null || t.pendingSlot === undefined) {
+        openModal({ type: 'alert', title: '시작 시각을 선택해주세요', message: '드롭다운에서 시작 시각을 먼저 골라주세요.' });
+        return;
+      }
+      const overlap = findOverlap(t.id, t.pendingSlot, minutesToSlots(t.minutes));
+      if (overlap) {
+        openModal({ type: 'alert', title: '시간이 겹칩니다', message: `'${overlap.name}'와 시간이 겹쳐요. 다른 시각을 선택해주세요.` });
+        return;
+      }
+      t.slot = t.pendingSlot; t.pendingSlot = null;
+      saveDay(); render();
+    };
+  });
+  document.querySelectorAll('[data-unplace]').forEach(b => {
+    b.onclick = () => {
+      const t = state.data.tasks.find(x => x.id === b.dataset.unplace);
+      if (t) { t.slot = null; t.done = false; saveDay(); render(); }
+    };
+  });
+
+  // Drag & drop
+  let draggedId = null;
+  document.querySelectorAll('.task-card[draggable="true"]').forEach(card => {
+    card.addEventListener('dragstart', e => { draggedId = card.dataset.id; e.dataTransfer.effectAllowed = 'move'; });
+  });
+  document.querySelectorAll('.slot').forEach(slot => {
+    slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('drag-target'); });
+    slot.addEventListener('dragleave', () => slot.classList.remove('drag-target'));
+    slot.addEventListener('drop', e => {
+      e.preventDefault();
+      slot.classList.remove('drag-target');
+      if (!draggedId) return;
+      const t = state.data.tasks.find(x => x.id === draggedId);
+      if (!t) return;
+      const target = parseInt(slot.dataset.slot);
+      const overlap = findOverlap(t.id, target, minutesToSlots(t.minutes));
+      if (overlap) {
+        openModal({ type: 'alert', title: '시간이 겹칩니다', message: `'${overlap.name}'와 시간이 겹쳐요.` });
+        return;
+      }
+      t.slot = target;
+      saveDay(); render();
+    });
+  });
+
+  // Block actions
+  document.querySelectorAll('[data-toggle]').forEach(b => {
+    b.onclick = e => { e.stopPropagation();
+      const t = state.data.tasks.find(x => x.id === b.dataset.toggle);
+      if (t) { t.done = !t.done; saveDay(); render(); }
+    };
+  });
+  document.querySelectorAll('[data-dup]').forEach(b => {
+    b.onclick = e => { e.stopPropagation();
+      const t = state.data.tasks.find(x => x.id === b.dataset.dup);
+      if (!t) return;
+      const copy = { ...t, id: uid(), slot: null, done: false, pendingSlot: null };
+      state.data.tasks.push(copy);
+      saveDay(); render();
+    };
+  });
+  document.querySelectorAll('[data-edit]').forEach(b => {
+    b.onclick = e => { e.stopPropagation();
+      openModal({ type: 'editBlock', taskId: b.dataset.edit });
+    };
+  });
+  // Whole block click also opens edit
+  document.querySelectorAll('[data-block]').forEach(bl => {
+    bl.onclick = e => {
+      if (e.target.closest('.actions')) return;
+      openModal({ type: 'editBlock', taskId: bl.dataset.block });
+    };
+  });
+
+  document.getElementById('rabbit-add').onclick = () => { state.data.rabbit += 1; saveDay(); render(); };
+  document.getElementById('review-text').addEventListener('input', e => {
+    state.data.review = e.target.value;
+    debouncedSave();
+  });
+
+  // Action bar
+  document.getElementById('copy-yesterday')?.addEventListener('click', copyYesterday);
+  document.getElementById('export-csv')?.addEventListener('click', exportDayCsv);
+  document.getElementById('clear-day')?.addEventListener('click', () => {
+    openModal({
+      type: 'confirm',
+      title: '오늘 일정을 비우시겠어요?',
+      message: '등록된 모든 할 일과 회고가 삭제됩니다. 되돌릴 수 없습니다.',
+      confirmLabel: '비우기',
+      isDanger: true,
+      onConfirm: () => {
+        state.data = emptyDay();
+        saveDay(); closeModal(); render();
+      }
+    });
+  });
+}
+
+function findOverlap(myId, slot, slotsCount) {
+  for (const o of state.data.tasks) {
+    if (o.id === myId || o.slot === null || o.slot === undefined) continue;
+    const a1 = slot, a2 = slot + slotsCount;
+    const b1 = o.slot, b2 = o.slot + minutesToSlots(o.minutes);
+    if (a1 < b2 && b1 < a2) return o;
+  }
+  return null;
+}
+
+async function copyYesterday() {
+  const yesterday = dateAdd(state.currentDate, -1);
+  const y = await loadDay(state.currentUser.name, yesterday);
+  if (y.tasks.length === 0) {
+    openModal({ type: 'alert', title: '복사할 일정이 없습니다', message: `${formatDateLong(yesterday)}에 등록된 일정이 없어요.` });
+    return;
+  }
+  openModal({
+    type: 'confirm',
+    title: `${formatDateLong(yesterday)} 일정을 복사할까요?`,
+    message: `${y.tasks.length}개의 할 일이 복사됩니다. 현재 ${state.data.tasks.length}개의 할 일에 추가됩니다.`,
+    confirmLabel: '복사',
+    onConfirm: () => {
+      const overlapping = [];
+      for (const t of y.tasks) {
+        const copy = { ...t, id: uid(), done: false, pendingSlot: null };
+        // If placed, check overlap; if conflict, unplace
+        if (copy.slot !== null && copy.slot !== undefined) {
+          const conflict = findOverlap('NONE', copy.slot, minutesToSlots(copy.minutes));
+          if (conflict) {
+            overlapping.push(copy.name);
+            copy.slot = null;
+          }
+        }
+        state.data.tasks.push(copy);
+      }
+      saveDay(); closeModal(); render();
+      if (overlapping.length > 0) {
+        setTimeout(() => openModal({
+          type: 'alert',
+          title: '일부 일정은 배치되지 않았어요',
+          message: `이미 다른 일정과 시간이 겹쳐서 배치하지 않았습니다: ${overlapping.join(', ')}. 풀에서 다시 시간을 골라 배치해주세요.`
+        }), 100);
+      }
+    }
+  });
+}
+
+function exportDayCsv() {
+  const rows = [['이름', '시작', '끝', '분', '카테고리', '완료']];
+  const tasks = [...state.data.tasks]
+    .filter(t => t.slot !== null && t.slot !== undefined)
+    .sort((a,b) => a.slot - b.slot);
+  for (const t of tasks) {
+    rows.push([
+      t.name,
+      slotToTime(t.slot),
+      slotToTime(t.slot + minutesToSlots(t.minutes)),
+      t.minutes,
+      COLORS[t.color].label,
+      t.done ? '완료' : '진행'
+    ]);
+  }
+  const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `타임박싱_${state.currentUser.name}_${state.currentDate}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+let saveTimer;
+function debouncedSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveDay, 600);
+}
+
+/* ============================================================
+   STATS VIEW
+============================================================ */
+async function renderStats() {
+  const days = parseInt(state.statsRange);
+  const isManager = state.currentUser.role === 'manager';
+  const scope = state.statsScope;
+
+  app.innerHTML = `
+    ${renderTopbar()}
+    ${renderSubnav()}
+    <div class="stats-page">
+      <div class="stats-header">
+        <h1>${scope === 'team' ? '팀 통계' : '나의 통계'}</h1>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          ${isManager ? `
+            <div class="scope-tabs">
+              <button class="${scope === 'self' ? 'active' : ''}" data-scope="self">개인</button>
+              <button class="${scope === 'team' ? 'active' : ''}" data-scope="team">팀 전체</button>
+            </div>
+          ` : ''}
+          <div class="range-tabs">
+            ${Object.entries(RANGES).map(([k, l]) => `
+              <button class="${state.statsRange === k ? 'active' : ''}" data-range="${k}">${l}</button>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+      <div id="stats-content" style="font-size:13px;color:var(--ink-3);text-align:center;padding:40px;">불러오는 중...</div>
+    </div>
+  `;
+
+  attachGlobalEvents();
+  document.querySelectorAll('[data-range]').forEach(b => {
+    b.onclick = async () => { state.statsRange = b.dataset.range; render(); };
+  });
+  document.querySelectorAll('[data-scope]').forEach(b => {
+    b.onclick = async () => { state.statsScope = b.dataset.scope; render(); };
+  });
+
+  // Load data
+  const allDays = {}; // date -> [tasks aggregated]
+  let users = scope === 'team' ? state.roster : [state.currentUser];
+  const allTaskList = []; // for counting
+
+  for (const u of users) {
+    const range = await loadRange(u.name, days);
+    for (const [date, day] of Object.entries(range)) {
+      if (!allDays[date]) allDays[date] = [];
+      for (const t of day.tasks) {
+        allDays[date].push({ ...t, _user: u.name });
+        allTaskList.push({ ...t, _user: u.name, _date: date });
+      }
+    }
+  }
+
+  document.getElementById('stats-content').innerHTML = buildStatsContent(allDays, allTaskList, days);
+  attachStatsEvents(allTaskList);
+}
+
+function buildStatsContent(allDays, allTaskList, days) {
+  // KPIs
+  const placedTasks = allTaskList.filter(t => t.slot !== null && t.slot !== undefined);
+  const totalPlannedMin = placedTasks.reduce((s, t) => s + t.minutes, 0);
+  const doneMin = placedTasks.filter(t => t.done).reduce((s, t) => s + t.minutes, 0);
+  const totalTaskCount = allTaskList.length;
+  const placedTaskCount = placedTasks.length;
+  const completionRate = totalPlannedMin > 0 ? Math.round((doneMin / totalPlannedMin) * 100) : 0;
+  const activeDays = Object.values(allDays).filter(arr => arr.length > 0).length;
+
+  // Daily bars
+  const dates = [];
+  for (let i = days - 1; i >= 0; i--) dates.push(dateAdd(todayStr(), -i));
+  const maxDayMin = Math.max(1, ...dates.map(d => (allDays[d] || []).filter(t => t.slot != null).reduce((s,t) => s + t.minutes, 0)));
+
+  // Color breakdown
+  const colorTotals = { blue:0, cyan:0, orange:0, green:0 };
+  placedTasks.forEach(t => { colorTotals[t.color] = (colorTotals[t.color] || 0) + t.minutes; });
+
+  // Task counting
+  const taskMap = {};
+  for (const t of allTaskList) {
+    const key = normalizeName(t.name);
+    if (!key) continue;
+    if (!taskMap[key]) taskMap[key] = { name: t.name, count: 0, minutes: 0, placedCount: 0 };
+    taskMap[key].count++;
+    if (t.slot !== null && t.slot !== undefined) {
+      taskMap[key].minutes += t.minutes;
+      taskMap[key].placedCount++;
+    }
+  }
+  const taskList = Object.values(taskMap).sort((a,b) => b.count - a.count);
+  const topMin = Math.max(1, ...taskList.map(x => x.minutes));
+
+  return `
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="label">계획 시간</div>
+        <div class="value">${Math.floor(totalPlannedMin/60)}<span class="unit">h</span> ${totalPlannedMin%60}<span class="unit">m</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">완료율</div>
+        <div class="value">${completionRate}<span class="unit">%</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">등록 업무</div>
+        <div class="value">${totalTaskCount}<span class="unit">건</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">활동한 날</div>
+        <div class="value">${activeDays}<span class="unit">/${days}일</span></div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stats-tile full">
+        <h3>일별 계획 시간</h3>
+        <div class="day-bars">
+          ${dates.map(d => {
+            const dayTasks = (allDays[d] || []).filter(t => t.slot != null);
+            const totals = { blue:0, cyan:0, orange:0, green:0 };
+            dayTasks.forEach(t => { totals[t.color] = (totals[t.color]||0) + t.minutes; });
+            const dayMin = Object.values(totals).reduce((s,v) => s+v, 0);
+            const hPct = (dayMin / maxDayMin) * 100;
+            return `
+              <div class="day-bar-col" title="${d} · ${dayMin}분">
+                <div class="day-bar" style="height: ${hPct}%;">
+                  ${Object.entries(totals).filter(([_,v]) => v > 0).map(([c,v]) =>
+                    `<span class="${c}" style="height:${(v/dayMin)*100}%"></span>`
+                  ).join('')}
+                </div>
+                <div class="day-label">${formatDateShort(d)}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <div class="stats-tile">
+        <h3>카테고리별 비중</h3>
+        ${totalPlannedMin === 0 ? '<div class="empty-table">아직 데이터가 없습니다.</div>' : `
+          <div class="stat-bar" style="height:14px;margin-bottom:14px;">
+            ${Object.entries(colorTotals).map(([c,m]) => m > 0 ? `<span class="${c}" style="width:${(m/totalPlannedMin)*100}%"></span>` : '').join('')}
+          </div>
+          <div class="stat-rows">
+            ${Object.entries(COLORS).map(([c,v]) => {
+              const m = colorTotals[c];
+              const hrs = Math.floor(m/60), mins = m%60;
+              return `<div class="stat-row">
+                <span class="sw ${c}"></span><span>${v.label}</span>
+                <span class="num">${hrs}h ${mins}m · ${Math.round((m/totalPlannedMin)*100)}%</span>
+              </div>`;
+            }).join('')}
+          </div>
+        `}
+      </div>
+
+      <div class="stats-tile">
+        <h3>완료 vs 미완료</h3>
+        ${totalPlannedMin === 0 ? '<div class="empty-table">아직 데이터가 없습니다.</div>' : `
+          <div style="display:flex; gap:24px; align-items:center;">
+            <div style="width:120px; height:120px; border-radius:50%; background: conic-gradient(var(--c-green) 0% ${completionRate}%, var(--surface-2) ${completionRate}% 100%); display:flex; align-items:center; justify-content:center;">
+              <div style="width:80px;height:80px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;">${completionRate}%</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:12px; color:var(--ink-3); font-weight:600; margin-bottom:6px;">완료한 시간</div>
+              <div style="font-size:20px; font-weight:800; margin-bottom:12px;">${Math.floor(doneMin/60)}h ${doneMin%60}m</div>
+              <div style="font-size:12px; color:var(--ink-3); font-weight:600; margin-bottom:6px;">남은 시간</div>
+              <div style="font-size:20px; font-weight:800;">${Math.floor((totalPlannedMin-doneMin)/60)}h ${(totalPlannedMin-doneMin)%60}m</div>
+            </div>
+          </div>
+        `}
+      </div>
+
+      <div class="stats-tile full">
+        <h3 style="display:flex; align-items:center; justify-content:space-between;">
+          업무 카운팅 · 자주 등록한 일
+          ${taskList.length > 0 ? `<button class="pill-btn" id="export-counts">⇩ CSV 내보내기</button>` : ''}
+        </h3>
+        ${taskList.length === 0 ? '<div class="empty-table">아직 등록된 업무가 없습니다.</div>' : `
+          <table class="task-counts">
+            <thead>
+              <tr>
+                <th>업무 이름</th>
+                <th style="text-align:right;">등록 횟수</th>
+                <th style="text-align:right;">배치된 횟수</th>
+                <th style="text-align:right;">총 시간</th>
+                <th class="bar-cell">상대 비중</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${taskList.slice(0, 30).map(t => `
+                <tr>
+                  <td class="name-cell">${escapeHtml(t.name)}</td>
+                  <td class="num-cell">${t.count}회</td>
+                  <td class="num-cell">${t.placedCount}회</td>
+                  <td class="num-cell">${Math.floor(t.minutes/60)}h ${t.minutes%60}m</td>
+                  <td class="bar-cell"><div class="bar"><span style="width:${(t.minutes/topMin)*100}%"></span></div></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          ${taskList.length > 30 ? `<div style="font-size:11px; color:var(--ink-3); margin-top:10px; text-align:center;">상위 30개 표시 · 총 ${taskList.length}개의 고유 업무</div>` : ''}
+        `}
+      </div>
+    </div>
+  `;
+}
+
+function attachStatsEvents(allTaskList) {
+  document.getElementById('export-counts')?.addEventListener('click', () => {
+    const taskMap = {};
+    for (const t of allTaskList) {
+      const key = normalizeName(t.name);
+      if (!key) continue;
+      if (!taskMap[key]) taskMap[key] = { name: t.name, count: 0, minutes: 0, placedCount: 0 };
+      taskMap[key].count++;
+      if (t.slot != null) { taskMap[key].minutes += t.minutes; taskMap[key].placedCount++; }
+    }
+    const list = Object.values(taskMap).sort((a,b) => b.count - a.count);
+    const rows = [['업무 이름', '등록 횟수', '배치된 횟수', '총 분']];
+    for (const t of list) rows.push([t.name, t.count, t.placedCount, t.minutes]);
+    const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `업무카운팅_${state.statsRange}일_${state.statsScope}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
+/* ============================================================
+   TEAM VIEW (manager)
+============================================================ */
+async function renderTeam() {
+  const me = state.currentUser;
+  // Refresh manager data
+  state.managerData = await loadAllToday();
+  const myData = state.managerData[me.name] || emptyDay();
+  let myPlanned = 0, myDone = 0;
+  myData.tasks.forEach(t => {
+    if (t.slot != null) { myPlanned += t.minutes; if (t.done) myDone += t.minutes; }
+  });
+  const others = state.roster.filter(m => m.name !== me.name);
+  const teamMembers = others.filter(m => m.role === 'member');
+  const otherManagers = others.filter(m => m.role === 'manager');
+
+  app.innerHTML = `
+    ${renderTopbar()}
+    ${renderSubnav()}
+    <div class="manager">
+      <div class="head">
+        <div>
+          <h1>팀의 오늘</h1>
+          <div class="date">${formatDateLong(state.today)} · 전체 ${state.roster.length}명</div>
+        </div>
+      </div>
+      <div class="self-cta">
+        <div>
+          <h2>${escapeHtml(me.name)}님의 타임박싱</h2>
+          <p>팀장도 본인 하루를 설계합니다.</p>
+          <div class="self-stats">
+            <div class="self-stat"><strong>${Math.floor(myPlanned/60)}h ${myPlanned%60}m</strong>오늘 계획</div>
+            <div class="self-stat"><strong>${myPlanned > 0 ? Math.round((myDone/myPlanned)*100) : 0}%</strong>완료</div>
+            <div class="self-stat"><strong>${myData.rabbit}</strong>토끼굴</div>
+          </div>
+        </div>
+        <button id="go-self">내 타임박싱 →</button>
+      </div>
+
+      ${teamMembers.length === 0 && otherManagers.length === 0 ? `
+        <div class="empty">
+          <h3>아직 다른 팀원이 없습니다</h3>
+          <p>팀원들이 본인 이름과 PIN으로 등록하면 여기에 표시됩니다.</p>
+        </div>
+      ` : `
+        ${teamMembers.length > 0 ? `
+          <div class="section-title">팀원 (${teamMembers.length}명)</div>
+          <div class="member-grid" style="margin-bottom: 24px;">
+            ${teamMembers.map(m => renderMemberCard(m, false)).join('')}
+          </div>
+        ` : ''}
+        ${otherManagers.length > 0 ? `
+          <div class="section-title">다른 팀장 (${otherManagers.length}명)</div>
+          <div class="member-grid">
+            ${otherManagers.map(m => renderMemberCard(m, true)).join('')}
+          </div>
+        ` : ''}
+      `}
+    </div>
+  `;
+
+  attachGlobalEvents();
+  document.getElementById('go-self').onclick = async () => {
+    state.subview = 'daily';
+    state.currentDate = state.today;
+    state.data = await loadDay(me.name, state.currentDate);
+    render();
+  };
+
+  document.querySelectorAll('.member-card .open-area').forEach(c => {
+    c.onclick = async () => {
+      const name = c.closest('.member-card').dataset.viewMember;
+      const member = state.roster.find(x => x.name === name);
+      if (!member) return;
+      state.managerOrigin = state.currentUser;
+      state.currentUser = { ...member, viewingAs: true, originalRole: 'manager' };
+      state.subview = 'daily';
+      state.currentDate = state.today;
+      state.data = await loadDay(member.name, state.currentDate);
+      render();
+    };
+  });
+  document.querySelectorAll('.member-card .menu-btn').forEach(b => {
+    b.onclick = (e) => {
+      e.stopPropagation();
+      const name = b.closest('.member-card').dataset.viewMember;
+      state.openMemberMenu = state.openMemberMenu === name ? null : name;
+      render();
+    };
+  });
+  document.querySelectorAll('[data-reset-pin]').forEach(b => {
+    b.onclick = (e) => {
+      e.stopPropagation();
+      const name = b.dataset.resetPin;
+      const member = state.roster.find(x => x.name === name);
+      if (!member) return;
+      state.openMemberMenu = null;
+      openModal({
+        type: 'confirm',
+        title: `${name}님의 PIN을 재설정하시겠어요?`,
+        message: '임시 PIN이 발급됩니다. 이 PIN을 본인에게 전달하면, 본인은 이 PIN으로 로그인 후 새 PIN을 설정하게 됩니다. 기존 PIN은 더 이상 사용할 수 없게 됩니다.',
+        confirmLabel: '임시 PIN 발급',
+        isDanger: false,
+        onConfirm: async () => {
+          const tempPin = await resetMemberPin(name);
+          openModal({
+            type: 'showTempPin',
+            memberName: name,
+            tempPin
+          });
+        }
+      });
+    };
+  });
+}
+
+function renderMemberCard(m, isManager) {
+  const d = state.managerData[m.name] || emptyDay();
+  const totals = { blue:0, cyan:0, orange:0, green:0 };
+  let totalMin = 0, doneMin = 0;
+  d.tasks.forEach(t => {
+    if (t.slot != null && t.color) {
+      totals[t.color] += t.minutes; totalMin += t.minutes;
+      if (t.done) doneMin += t.minutes;
+    }
+  });
+  const blocks = d.tasks.filter(t => t.slot != null).map(t => {
+    const sc = minutesToSlots(t.minutes);
+    return `<div class="mini-block ${t.color}" style="top:${(t.slot/TOTAL_SLOTS)*100}%; height:${(sc/TOTAL_SLOTS)*100}%; opacity:${t.done ? 0.45 : 0.95};"></div>`;
+  }).join('');
+  const statBar = totalMin > 0
+    ? `<div class="mini-stat-bar">${Object.entries(totals).map(([c,v]) => v > 0 ? `<span class="${c}" style="width:${(v/totalMin)*100}%"></span>` : '').join('')}</div>`
+    : '<div class="mini-stat-bar"></div>';
+  return `
+    <div class="member-card" data-view-member="${escapeAttr(m.name)}">
+      <div class="top">
+        <div class="avatar">${escapeHtml(initials(m.name))}</div>
+        <div class="name">${escapeHtml(m.name)}</div>
+        ${isManager ? '<span class="role-badge">팀장</span>' : ''}
+        ${m.mustChange ? '<span class="role-badge" style="background:var(--c-orange);color:white;">PIN 재설정</span>' : ''}
+        <button class="menu-btn" title="더보기">⋮</button>
+      </div>
+      ${state.openMemberMenu === m.name ? `
+        <div class="menu">
+          <button data-reset-pin="${escapeAttr(m.name)}">PIN 재설정</button>
+        </div>
+      ` : ''}
+      <div class="open-area">
+        <div class="morning-snippet">
+          ${d.morningPlan ? `"${escapeHtml(d.morningPlan.slice(0, 70))}${d.morningPlan.length > 70 ? '…' : ''}"` : '아직 아침 계획 없음'}
+        </div>
+        <div class="mini-timeline">
+          ${blocks || '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-3);">배치된 일정 없음</div>'}
+        </div>
+        ${statBar}
+        <div class="footer">
+          <span class="planned">${Math.floor(totalMin/60)}h ${totalMin%60}m</span>
+          <span>완료 ${totalMin > 0 ? Math.round((doneMin/totalMin)*100) : 0}% · 토끼굴 ${d.rabbit}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   MODALS
+============================================================ */
+function openModal(modal) { state.modal = modal; render(); }
+function closeModal() { state.modal = null; removeModal(); render(); }
+function removeModal() { document.querySelectorAll('.modal-backdrop').forEach(el => el.remove()); }
+
+function renderModal() {
+  removeModal();
+  if (!state.modal) return;
+  const m = state.modal;
+  const bd = document.createElement('div');
+  bd.className = 'modal-backdrop';
+
+  if (m.type === 'alert') {
+    bd.innerHTML = `
+      <div class="modal">
+        <div class="modal-head">
+          <h2>${escapeHtml(m.title)}</h2>
+          <p>${escapeHtml(m.message)}</p>
+        </div>
+        <div class="modal-foot">
+          <button class="confirm" id="m-ok">확인</button>
+        </div>
+      </div>`;
+  } else if (m.type === 'confirm') {
+    bd.innerHTML = `
+      <div class="modal">
+        <div class="modal-head">
+          <h2>${escapeHtml(m.title)}</h2>
+          <p>${escapeHtml(m.message)}</p>
+        </div>
+        <div class="modal-foot">
+          <button class="cancel" id="m-cancel">취소</button>
+          <button class="${m.isDanger ? 'danger' : 'confirm'}" id="m-ok">${escapeHtml(m.confirmLabel || '확인')}</button>
+        </div>
+      </div>`;
+  } else if (m.type === 'pin') {
+    const mustChange = m.member.mustChange;
+    bd.innerHTML = `
+      <div class="modal">
+        <div class="modal-head">
+          <h2>${escapeHtml(m.member.name)}님으로 로그인</h2>
+          <p>${mustChange ? '팀장이 임시 PIN을 발급했습니다. 임시 PIN으로 로그인 후 새 PIN을 설정하세요.' : '등록 시 설정한 PIN 4자리를 입력하세요.'}</p>
+        </div>
+        <div class="modal-body">
+          <label>${mustChange ? '임시 PIN' : 'PIN'}</label>
+          <input class="pin" type="password" id="pin-input" maxlength="4" inputmode="numeric" placeholder="••••" autofocus/>
+          ${m.error ? `<div class="form-error">${escapeHtml(m.error)}</div>` : ''}
+        </div>
+        <div class="modal-foot">
+          <button class="cancel" id="m-cancel">취소</button>
+          <button class="confirm" id="m-ok">로그인</button>
+        </div>
+      </div>`;
+  } else if (m.type === 'setNewPin') {
+    bd.innerHTML = `
+      <div class="modal">
+        <div class="modal-head">
+          <h2>새 PIN 설정</h2>
+          <p>본인만 아는 새 PIN 4자리를 설정하세요. 이후 이 PIN으로만 로그인할 수 있습니다.</p>
+        </div>
+        <div class="modal-body">
+          <label>새 PIN</label>
+          <input class="pin" type="password" id="new-pin" maxlength="4" inputmode="numeric" placeholder="••••" autofocus/>
+          <label>새 PIN 확인</label>
+          <input class="pin" type="password" id="new-pin-2" maxlength="4" inputmode="numeric" placeholder="••••"/>
+          ${m.error ? `<div class="form-error">${escapeHtml(m.error)}</div>` : ''}
+        </div>
+        <div class="modal-foot">
+          <button class="confirm" id="m-ok" style="flex:1;">설정 완료</button>
+        </div>
+      </div>`;
+  } else if (m.type === 'changePin') {
+    bd.innerHTML = `
+      <div class="modal">
+        <div class="modal-head">
+          <h2>PIN 변경</h2>
+          <p>현재 PIN을 확인한 뒤 새 PIN을 설정합니다.</p>
+        </div>
+        <div class="modal-body">
+          <label>현재 PIN</label>
+          <input class="pin" type="password" id="cur-pin" maxlength="4" inputmode="numeric" placeholder="••••" autofocus/>
+          <label>새 PIN</label>
+          <input class="pin" type="password" id="new-pin" maxlength="4" inputmode="numeric" placeholder="••••"/>
+          <label>새 PIN 확인</label>
+          <input class="pin" type="password" id="new-pin-2" maxlength="4" inputmode="numeric" placeholder="••••"/>
+          ${m.error ? `<div class="form-error">${escapeHtml(m.error)}</div>` : ''}
+        </div>
+        <div class="modal-foot">
+          <button class="cancel" id="m-cancel">취소</button>
+          <button class="confirm" id="m-ok">변경</button>
+        </div>
+      </div>`;
+  } else if (m.type === 'showTempPin') {
+    bd.innerHTML = `
+      <div class="modal">
+        <div class="modal-head">
+          <h2>임시 PIN 발급 완료</h2>
+          <p><strong>${escapeHtml(m.memberName)}</strong>님에게 아래 PIN을 직접 전달하세요. 이 화면을 닫으면 PIN을 다시 볼 수 없습니다.</p>
+        </div>
+        <div class="modal-body">
+          <div class="pin-display">
+            <div class="label">임시 PIN</div>
+            <div class="pin">${escapeHtml(m.tempPin)}</div>
+            <div class="note">본인이 이 PIN으로 로그인하면 새 PIN을 설정해야 합니다.</div>
+          </div>
+          <button class="btn-secondary" id="m-copy" style="width:100%;">📋 클립보드에 복사</button>
+        </div>
+        <div class="modal-foot">
+          <button class="confirm" id="m-ok">완료</button>
+        </div>
+      </div>`;
+  } else if (m.type === 'editBlock') {
+    const t = state.data.tasks.find(x => x.id === m.taskId);
+    if (!t) { state.modal = null; return; }
+    const placed = t.slot !== null && t.slot !== undefined;
+    const durationOptions = [];
+    for (let min = 15; min <= 240; min += 15) {
+      durationOptions.push(`<option value="${min}" ${t.minutes === min ? 'selected' : ''}>${min}분 ${min >= 60 ? `(${Math.floor(min/60)}h${min%60 ? ` ${min%60}m` : ''})` : ''}</option>`);
+    }
+    const slotsNeeded = minutesToSlots(t.minutes);
+    const startOptions = [];
+    for (let s = 0; s + slotsNeeded <= TOTAL_SLOTS; s++) {
+      startOptions.push(`<option value="${s}" ${t.slot === s ? 'selected' : ''}>${slotToTime(s)}</option>`);
+    }
+    bd.innerHTML = `
+      <div class="modal">
+        <div class="modal-head">
+          <h2>일정 편집</h2>
+          <p>시작·지속 시간을 15분 단위로 자유롭게 조정하세요.</p>
+        </div>
+        <div class="modal-body">
+          <label>이름</label>
+          <input id="edit-name" type="text" value="${escapeAttr(t.name)}"/>
+          <label>카테고리</label>
+          <div class="modal-color-pick">
+            ${Object.entries(COLORS).map(([c,v]) => `
+              <span class="color-dot ${c} ${t.color === c ? 'active' : ''}" data-edit-color="${c}" title="${v.label}"></span>
+            `).join('')}
+          </div>
+          ${placed ? `
+            <div class="modal-grid">
+              <div>
+                <label>시작 시각</label>
+                <select id="edit-start">${startOptions.join('')}</select>
+              </div>
+              <div>
+                <label>지속 시간</label>
+                <select id="edit-dur">${durationOptions.join('')}</select>
+              </div>
+            </div>
+          ` : `
+            <label>지속 시간</label>
+            <select id="edit-dur">${durationOptions.join('')}</select>
+          `}
+          ${m.error ? `<div class="form-error">${escapeHtml(m.error)}</div>` : ''}
+        </div>
+        <div class="modal-foot">
+          <button class="cancel grow0" id="edit-delete" title="삭제">🗑</button>
+          <button class="cancel grow0" id="edit-dup" title="복제">⎘ 복제</button>
+          <button class="cancel" id="m-cancel">취소</button>
+          <button class="confirm" id="m-ok">저장</button>
+        </div>
+      </div>`;
+  }
+
+  document.body.appendChild(bd);
+  bd.addEventListener('click', e => { if (e.target === bd) closeModal(); });
+  document.getElementById('m-cancel')?.addEventListener('click', closeModal);
+
+  // ESC closes
+  const escHandler = e => { if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', escHandler); } };
+  document.addEventListener('keydown', escHandler);
+
+  // Type-specific events
+  if (m.type === 'alert') {
+    document.getElementById('m-ok').onclick = closeModal;
+  } else if (m.type === 'confirm') {
+    document.getElementById('m-ok').onclick = () => m.onConfirm?.();
+  } else if (m.type === 'pin') {
+    const input = document.getElementById('pin-input');
+    const tryIt = async () => {
+      const pin = input.value.trim();
+      if (!/^\d{4}$/.test(pin)) { m.error = '숫자 4자리를 입력하세요.'; render(); return; }
+      const ok = await verifyPin(m.member, pin);
+      if (!ok) { m.error = 'PIN이 일치하지 않습니다.'; input.value = ''; render(); document.getElementById('pin-input')?.focus(); return; }
+      if (m.member.mustChange) {
+        // Force new PIN setup
+        openModal({ type: 'setNewPin', error: '', member: m.member });
+      } else {
+        closeModal();
+        await enterApp(m.member);
+      }
+    };
+    document.getElementById('m-ok').onclick = tryIt;
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') tryIt(); });
+    setTimeout(() => input.focus(), 50);
+  } else if (m.type === 'setNewPin') {
+    document.getElementById('m-ok').onclick = async () => {
+      const p1 = document.getElementById('new-pin').value.trim();
+      const p2 = document.getElementById('new-pin-2').value.trim();
+      if (!/^\d{4}$/.test(p1)) { m.error = '숫자 4자리를 입력하세요.'; render(); return; }
+      if (p1 !== p2) { m.error = '두 PIN이 일치하지 않습니다.'; render(); return; }
+      const idx = state.roster.findIndex(x => x.name === m.member.name);
+      const salt = uid();
+      const pinHash = await hashPin(p1, salt);
+      state.roster[idx] = { ...state.roster[idx], salt, pinHash, mustChange: false };
+      await saveRoster();
+      closeModal();
+      await enterApp(state.roster[idx]);
+    };
+  } else if (m.type === 'changePin') {
+    document.getElementById('m-ok').onclick = async () => {
+      const cur = document.getElementById('cur-pin').value.trim();
+      const p1 = document.getElementById('new-pin').value.trim();
+      const p2 = document.getElementById('new-pin-2').value.trim();
+      if (!/^\d{4}$/.test(cur) || !/^\d{4}$/.test(p1)) { m.error = '숫자 4자리를 입력하세요.'; render(); return; }
+      if (p1 !== p2) { m.error = '새 PIN이 일치하지 않습니다.'; render(); return; }
+      const r = await changeOwnPin(cur, p1);
+      if (!r.ok) { m.error = r.error; render(); return; }
+      closeModal();
+      openModal({ type: 'alert', title: 'PIN 변경 완료', message: '다음 로그인부터 새 PIN을 사용하세요.' });
+    };
+  } else if (m.type === 'showTempPin') {
+    document.getElementById('m-ok').onclick = closeModal;
+    document.getElementById('m-copy').onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(m.tempPin);
+        document.getElementById('m-copy').textContent = '✓ 복사됨';
+      } catch {
+        document.getElementById('m-copy').textContent = '복사 실패';
+      }
+    };
+  } else if (m.type === 'editBlock') {
+    document.querySelectorAll('[data-edit-color]').forEach(d => {
+      d.onclick = () => {
+        document.querySelectorAll('[data-edit-color]').forEach(x => x.classList.remove('active'));
+        d.classList.add('active');
+      };
+    });
+    document.getElementById('m-ok').onclick = async () => {
+      const t = state.data.tasks.find(x => x.id === m.taskId);
+      if (!t) return;
+      const newName = document.getElementById('edit-name').value.trim();
+      if (!newName) { m.error = '이름을 입력해주세요.'; render(); return; }
+      const newColor = document.querySelector('[data-edit-color].active')?.dataset.editColor || t.color;
+      const newDuration = parseInt(document.getElementById('edit-dur').value);
+      const startEl = document.getElementById('edit-start');
+      const placed = t.slot !== null && t.slot !== undefined;
+      let newSlot = t.slot;
+      if (placed && startEl) {
+        newSlot = parseInt(startEl.value);
+        const slotsCount = minutesToSlots(newDuration);
+        if (newSlot + slotsCount > TOTAL_SLOTS) {
+          m.error = `${slotToTime(newSlot)}에서 ${newDuration}분은 ${HOUR_END}:00을 넘습니다.`; render(); return;
+        }
+        const overlap = findOverlap(t.id, newSlot, slotsCount);
+        if (overlap) { m.error = `'${overlap.name}'와 시간이 겹칩니다.`; render(); return; }
+      }
+      t.name = newName; t.color = newColor; t.minutes = newDuration; t.slot = newSlot;
+      saveDay(); closeModal(); render();
+    };
+    document.getElementById('edit-delete').onclick = () => {
+      const t = state.data.tasks.find(x => x.id === m.taskId);
+      if (!t) return;
+      state.data.tasks = state.data.tasks.filter(x => x.id !== m.taskId);
+      saveDay(); closeModal(); render();
+    };
+    document.getElementById('edit-dup').onclick = () => {
+      const t = state.data.tasks.find(x => x.id === m.taskId);
+      if (!t) return;
+      const copy = { ...t, id: uid(), slot: null, done: false, pendingSlot: null };
+      state.data.tasks.push(copy);
+      saveDay(); closeModal(); render();
+    };
+  }
+}
+
+/* ============================================================
+   BOOT
+============================================================ */
+async function boot() {
+  // Check config
+  if (SUPABASE_URL.includes('YOUR_SUPABASE_URL') || SUPABASE_KEY.includes('YOUR_SUPABASE_KEY')) {
+    document.getElementById('app').innerHTML = `
+      <div style="max-width:520px;margin:80px auto;padding:30px;background:#FEEAEA;border-radius:12px;border:2px solid #E14B4B;font-family:'Pretendard',sans-serif;">
+        <h2 style="color:#E14B4B;font-size:18px;margin-bottom:14px;">⚠️ Supabase 설정 필요</h2>
+        <p style="font-size:14px;color:#4A5468;line-height:1.6;margin-bottom:12px;">
+          HTML 파일을 텍스트 에디터(메모장)로 열어, 파일 상단의 <code style="background:#fff;padding:2px 6px;border-radius:4px;">SUPABASE_URL</code>과 
+          <code style="background:#fff;padding:2px 6px;border-radius:4px;">SUPABASE_KEY</code>를 본인의 Supabase 프로젝트 값으로 바꾸세요.
+        </p>
+        <p style="font-size:13px;color:#8A93A6;">바꾼 뒤 다시 Netlify에 끌어다 놓으세요.</p>
+      </div>
+    `;
+    return;
+  }
+  await loadRoster();
+  const remembered = getRememberedUser();
+  if (remembered) {
+    const full = state.roster.find(m => m.name === remembered.name);
+    if (full) {
+      if (full.mustChange) {
+        // Force PIN re-entry → setNewPin flow
+        state.view = 'login';
+        render();
+        return;
+      }
+      await enterApp(full);
+      return;
+    }
+  }
+  state.view = 'login';
+  render();
+}
+boot();
+</script>
+</body>
+</html>
