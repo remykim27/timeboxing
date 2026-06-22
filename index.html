@@ -567,6 +567,138 @@
     line-height: 1.5;
   }
 
+
+  /* ===== Request modals ===== */
+  .request-modal { max-width: 540px; }
+  .req-type-pick {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin: 8px 0 14px;
+  }
+  .req-type-btn {
+    padding: 12px 10px;
+    border: 2px solid var(--rule);
+    border-radius: 8px;
+    background: var(--surface);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .req-type-btn:hover { border-color: var(--rule-strong); }
+  .req-type-btn.active {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    color: var(--brand);
+  }
+  .modal-body textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--rule);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    resize: vertical;
+    outline: none;
+    background: var(--surface);
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .modal-body textarea:focus { border-color: var(--brand); }
+  [data-theme="dark"] .modal-body textarea { background: var(--surface-2); }
+
+  .req-list { max-height: 420px; overflow-y: auto; padding-right: 4px; }
+  .req-card {
+    padding: 12px;
+    border: 1.5px solid var(--rule);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: var(--surface);
+  }
+  .req-card.pending { border-left: 4px solid var(--c-orange); }
+  .req-card.accepted { border-left: 4px solid var(--c-green); }
+  .req-card.declined { border-left: 4px solid var(--danger); opacity: 0.65; }
+  .req-card.completed { border-left: 4px solid var(--brand); opacity: 0.7; }
+  .req-card .req-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; gap: 8px; }
+  .req-card .req-from { font-size: 13px; font-weight: 700; }
+  .req-card .req-type-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    border-radius: 100px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .req-card .req-meta { font-size: 10px; color: var(--ink-3); font-family: var(--mono); margin-bottom: 6px; }
+  .req-card .req-msg { font-size: 13px; color: var(--ink); line-height: 1.5; margin-bottom: 6px; white-space: pre-wrap; word-break: keep-all; }
+  .req-card .req-pref { font-size: 12px; color: var(--ink-2); margin-bottom: 8px; padding: 6px 8px; background: var(--surface-2); border-radius: 6px; }
+  .req-card .req-status {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+  .req-card .req-status.pending { background: #FFF4E8; color: #D97706; }
+  .req-card .req-status.accepted { background: #E8F7E8; color: #16A34A; }
+  .req-card .req-status.declined { background: var(--danger-soft); color: var(--danger); }
+  .req-card .req-status.completed { background: var(--brand-soft); color: var(--brand); }
+  [data-theme="dark"] .req-card .req-status.pending { background: #3D2E1A; color: #F4A553; }
+  [data-theme="dark"] .req-card .req-status.accepted { background: #1F3D24; color: #4ADE80; }
+
+  .req-card .req-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .req-card .req-actions button {
+    padding: 5px 10px; font-size: 12px; border-radius: 5px;
+    border: 1.5px solid var(--rule); background: var(--surface); color: var(--ink);
+    font-weight: 600; cursor: pointer;
+  }
+  .req-card .req-actions .accept { background: var(--c-green); color: white; border-color: var(--c-green); }
+  .req-card .req-actions .decline { background: var(--danger); color: white; border-color: var(--danger); }
+  .req-card .req-actions .complete { background: var(--brand); color: white; border-color: var(--brand); }
+  .req-card .req-actions .reply { background: var(--surface-2); }
+  .req-card .req-reply {
+    background: var(--surface-2);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-top: 6px;
+    color: var(--ink-2);
+    border-left: 3px solid var(--brand);
+    white-space: pre-wrap;
+  }
+  .req-card .req-reply strong { color: var(--brand); font-weight: 700; }
+  .req-tabs {
+    display: flex; gap: 4px; margin-bottom: 12px;
+    background: var(--surface-2); padding: 4px; border-radius: 8px;
+  }
+  .req-tabs button {
+    flex: 1; padding: 7px;
+    font-size: 12px; font-weight: 600;
+    border: none; background: transparent;
+    border-radius: 5px; color: var(--ink-3); cursor: pointer;
+  }
+  .req-tabs button.active { background: var(--surface); color: var(--brand); }
+  .req-badge {
+    display: inline-block; background: #E14B4B;
+    color: white; font-size: 10px; font-weight: 700;
+    padding: 1px 6px; border-radius: 100px;
+    margin-left: 6px; font-family: var(--mono);
+    vertical-align: middle;
+  }
+  .req-empty { padding: 30px 16px; text-align: center; color: var(--ink-3); font-size: 13px; font-style: italic; }
+
+  /* Reply input area */
+  .reply-form { margin-top: 8px; padding: 10px; background: var(--surface-2); border-radius: 6px; }
+  .reply-form textarea { min-height: 60px; margin-bottom: 6px; font-size: 12px; background: var(--surface); }
+  .reply-form .reply-actions { display: flex; gap: 6px; justify-content: flex-end; }
+  .reply-form button { padding: 5px 10px; font-size: 11px; border-radius: 4px; cursor: pointer; font-weight: 600; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); }
+  .reply-form button.save { background: var(--brand); color: white; border-color: var(--brand); }
+
   @media (max-width: 1100px) {
     .daily { grid-template-columns: 1fr; }
     .col { max-height: none; }
@@ -649,7 +781,10 @@ let state = {
   calendarMonth: todayStr().slice(0, 7),
   monthHasData: {},
   repeatTemplates: [],
-  darkMode: false
+  darkMode: false,
+  // v4
+  requests: [],
+  pendingRequestCount: 0
 };
 
 function emptyDay() { return { morningPlan: '', tasks: [], rabbit: 0, review: '' }; }
@@ -1059,19 +1194,28 @@ function renderLogin() {
           <p>아침 15분이 남은 15시간을 책임집니다.<br/>마크 자오 샌더스의 타임박싱 방법론.</p>
         </div>
         <div class="login-body">
-          <label class="field-label">이름</label>
-          <input id="login-name" class="field-input" type="text" placeholder="이름 입력" autocomplete="off" autofocus/>
-          <label class="field-label">PIN (숫자 4자리)</label>
-          <input id="login-pin" class="field-input pin" type="password" maxlength="4" inputmode="numeric" placeholder="••••"/>
-          <div class="login-divider-line"></div>
-          <label class="field-label">처음 등록할 때만 — 역할</label>
-          <select id="login-role" class="field-input">
-            <option value="member">팀원</option>
-            <option value="manager">팀장 (전체 조회 + 본인 타임박싱)</option>
-          </select>
-          <div class="form-help">기존 사용자는 이름·PIN만 입력해 로그인되고, 새 사용자는 위 역할이 적용돼 자동 등록됩니다.</div>
-          <button class="btn-primary" id="login-btn" style="margin-top:14px;">시작하기</button>
-          <div class="login-help-link">PIN을 잊었다면 팀장에게 임시 PIN으로 재설정을 요청하세요.</div>
+          ${(() => {
+            const hasManager = state.roster.some(m => m.role === 'manager');
+            const managerName = state.roster.find(m => m.role === 'manager')?.name || '';
+            return `
+              <label class="field-label">이름</label>
+              <input id="login-name" class="field-input" type="text" placeholder="이름 입력" autocomplete="off" autofocus/>
+              <label class="field-label">PIN (숫자 4자리)</label>
+              <input id="login-pin" class="field-input pin" type="password" maxlength="4" inputmode="numeric" placeholder="••••"/>
+              <div class="login-divider-line"></div>
+              <label class="field-label">처음 등록할 때만 — 역할</label>
+              <select id="login-role" class="field-input">
+                <option value="member">팀원</option>
+                ${!hasManager ? '<option value="manager">팀장 (전체 조회 + 본인 타임박싱)</option>' : ''}
+              </select>
+              ${hasManager
+                ? `<div class="form-help" style="color:var(--c-orange);">⚠️ 팀장(${escapeHtml(managerName)})은 이미 등록되어 있어 신규 가입은 팀원으로만 가능합니다.</div>`
+                : '<div class="form-help">기존 사용자는 이름·PIN만 입력해 로그인되고, 새 사용자는 위 역할이 적용돼 자동 등록됩니다.</div>'
+              }
+              <button class="btn-primary" id="login-btn" style="margin-top:14px;">시작하기</button>
+              <div class="login-help-link">PIN을 잊었다면 팀장에게 임시 PIN으로 재설정을 요청하세요.</div>
+            `;
+          })()}
         </div>
       </div>
     </div>
@@ -1108,8 +1252,31 @@ async function handleLogin() {
     return;
   }
   // 신규 등록
-  const user = await registerUser(name, role, pin);
-  await enterApp(user);
+  if (role === 'manager') {
+    const existingMgr = state.roster.find(m => m.role === 'manager');
+    if (existingMgr) {
+      return openModal({
+        type: 'alert',
+        title: '팀장은 1명만 가능합니다',
+        message: `팀장은 이미 '${existingMgr.name}'으로 등록되어 있어요. 팀원으로 가입해주세요.`
+      });
+    }
+  }
+  try {
+    const user = await registerUser(name, role, pin);
+    await enterApp(user);
+  } catch (e) {
+    const msg = String(e?.message || e || '');
+    if (msg.includes('팀장은 1명')) {
+      openModal({
+        type: 'alert',
+        title: '팀장은 1명만 가능합니다',
+        message: '데이터베이스에서 거부되었습니다. 새로고침 후 다시 시도해주세요.'
+      });
+    } else {
+      openModal({ type: 'alert', title: '등록 실패', message: msg || '알 수 없는 오류' });
+    }
+  }
 }
 
 async function enterApp(user) {
@@ -1133,8 +1300,120 @@ async function enterApp(user) {
   }
   if (!user.viewingAs) {
     state.monthHasData = await loadMonthDays(user.name, state.calendarMonth);
+    await refreshRequests();
   }
   render();
+}
+
+
+/* ===== Requests (v4) ===== */
+async function loadRequests(userName, role) {
+  try {
+    let query = sb.from('requests').select('*').order('created_at', { ascending: false });
+    if (role === 'manager') {
+      query = query.eq('to_user', userName);
+    } else {
+      query = query.eq('from_user', userName);
+    }
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
+  } catch (e) {
+    console.error('loadRequests fail', e);
+    return [];
+  }
+}
+
+async function refreshRequests() {
+  if (!state.currentUser || state.currentUser.viewingAs) return;
+  const role = state.currentUser.originalRole || state.currentUser.role;
+  state.requests = await loadRequests(state.currentUser.name, role);
+  if (role === 'manager') {
+    state.pendingRequestCount = state.requests.filter(r => r.status === 'pending').length;
+  }
+}
+
+async function createRequest({ requestType, message, preferredTime }) {
+  try {
+    const manager = state.roster.find(m => m.role === 'manager');
+    if (!manager) {
+      showError('팀장이 등록되어 있지 않습니다.');
+      return null;
+    }
+    const { data, error } = await sb.from('requests').insert({
+      from_user: state.currentUser.name,
+      to_user: manager.name,
+      request_type: requestType,
+      message,
+      preferred_time: preferredTime || null,
+      status: 'pending'
+    }).select().single();
+    if (error) throw error;
+    return data;
+  } catch (e) {
+    console.error('createRequest fail', e);
+    showError('요청 보내기 실패: ' + (e.message || ''));
+    return null;
+  }
+}
+
+async function updateRequestStatus(id, status, managerReply) {
+  try {
+    const update = { status, updated_at: new Date().toISOString() };
+    if (managerReply !== undefined) update.manager_reply = managerReply;
+    const { error } = await sb.from('requests').update(update).eq('id', id);
+    if (error) throw error;
+    return true;
+  } catch (e) {
+    console.error('updateRequestStatus fail', e);
+    showError('상태 변경 실패');
+    return false;
+  }
+}
+
+async function deleteRequest(id) {
+  try {
+    await sb.from('requests').delete().eq('id', id);
+  } catch (e) {
+    console.error('deleteRequest fail', e);
+    showError('삭제 실패');
+  }
+}
+
+async function openRequestsModal() {
+  await refreshRequests();
+  const role = state.currentUser.originalRole || state.currentUser.role;
+  if (role === 'manager') {
+    openModal({ type: 'requestsInbox', filter: 'pending' });
+  } else {
+    openModal({ type: 'requestsSend', mode: 'send', composing: { requestType: 'tea', message: '', preferredTime: '' } });
+  }
+}
+
+const REQ_TYPE_OPTIONS = [
+  { value: 'tea', emoji: '☕', label: '티타임', desc: '커피 한잔 같이' },
+  { value: 'one_on_one', emoji: '🗨️', label: '1:1 미팅', desc: '진솔한 대화' },
+  { value: 'mentoring', emoji: '🌱', label: '멘토링', desc: '조언이 필요해요' },
+  { value: 'other', emoji: '📝', label: '기타', desc: '직접 작성' }
+];
+
+function reqTypeMeta(t) {
+  return REQ_TYPE_OPTIONS.find(o => o.value === t) || REQ_TYPE_OPTIONS[3];
+}
+
+function statusLabel(s) {
+  return { pending: '대기중', accepted: '수락됨', declined: '거절됨', completed: '완료' }[s] || s;
+}
+
+function formatRelative(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const today = new Date();
+  const diff = Math.round((today - d) / 86400000);
+  if (diff === 0) return '오늘';
+  if (diff === 1) return '어제';
+  if (diff < 7) return `${diff}일 전`;
+  return d.toISOString().slice(0, 10);
 }
 
 /* ============================================================
@@ -1167,6 +1446,7 @@ function renderTopbar() {
           </div>
           ${state.showUserMenu ? `
             <div class="user-menu">
+              ${!u.viewingAs ? `<button id="menu-requests">📩 ${(u.originalRole || u.role) === 'manager' ? '받은 요청' : '팀장에게 요청'}${state.pendingRequestCount > 0 && (u.originalRole || u.role) === 'manager' ? `<span class="req-badge">${state.pendingRequestCount}</span>` : ''}</button>` : ''}
               ${!u.viewingAs ? `<button id="menu-repeats">📋 반복 일정 관리</button>` : ''}
               <button id="menu-dark" class="menu-item-toggle">
                 <span>${state.darkMode ? '☀️ 라이트 모드' : '🌙 다크 모드'}</span>
@@ -1237,6 +1517,11 @@ function attachGlobalEvents() {
     e.stopPropagation();
     state.showUserMenu = false;
     openModal({ type: 'repeats' });
+  });
+  document.getElementById('menu-requests')?.addEventListener('click', async e => {
+    e.stopPropagation();
+    state.showUserMenu = false;
+    await openRequestsModal();
   });
   document.getElementById('open-search')?.addEventListener('click', () => openSearchModal());
 
@@ -2517,6 +2802,145 @@ function renderModal() {
           <button class="cancel" id="m-cancel" style="flex:1;">닫기</button>
         </div>
       </div>`;
+  } else if (m.type === 'requestsSend') {
+    const c = m.composing;
+    bd.innerHTML = `
+      <div class="modal request-modal">
+        <div class="modal-head">
+          <h2>📩 팀장에게 요청</h2>
+          <p>업무 외 티타임·1:1·멘토링 등 비공식 요청을 보낼 수 있어요.</p>
+        </div>
+        <div class="modal-body">
+          <div class="req-tabs">
+            <button class="${m.mode === 'send' ? 'active' : ''}" data-tab="send">새 요청</button>
+            <button class="${m.mode === 'mine' ? 'active' : ''}" data-tab="mine">내가 보낸 요청 (${state.requests.length})</button>
+          </div>
+
+          ${m.mode === 'send' ? `
+            <label class="field-label">종류</label>
+            <div class="req-type-pick">
+              ${REQ_TYPE_OPTIONS.map(o => `
+                <button class="req-type-btn ${c.requestType === o.value ? 'active' : ''}" data-req-type="${o.value}">
+                  ${o.emoji} <strong>${o.label}</strong>
+                  <div style="font-size:11px;color:var(--ink-3);font-weight:500;margin-top:2px;">${o.desc}</div>
+                </button>
+              `).join('')}
+            </div>
+
+            <label class="field-label">메시지</label>
+            <textarea id="req-msg" placeholder="요청 사유나 하고 싶은 말을 적어주세요.">${escapeHtml(c.message || '')}</textarea>
+
+            <label class="field-label" style="margin-top:12px;">선호 시간 (선택)</label>
+            <input id="req-time" type="text" class="field-input" placeholder="예: 다음주 화요일 오후, 또는 언제든 OK" value="${escapeAttr(c.preferredTime || '')}"/>
+          ` : `
+            <div class="req-list">
+              ${state.requests.length === 0
+                ? '<div class="req-empty">보낸 요청이 없어요.</div>'
+                : state.requests.map(r => {
+                    const meta = reqTypeMeta(r.request_type);
+                    return `
+                      <div class="req-card ${r.status}">
+                        <div class="req-head">
+                          <div>
+                            <span class="req-status ${r.status}">${statusLabel(r.status)}</span>
+                            <span class="req-type-badge">${meta.emoji} ${meta.label}</span>
+                          </div>
+                          <span style="font-size:11px; color:var(--ink-3); font-family:var(--mono);">${formatRelative(r.created_at)}</span>
+                        </div>
+                        <div class="req-msg">${escapeHtml(r.message)}</div>
+                        ${r.preferred_time ? `<div class="req-pref">⏰ ${escapeHtml(r.preferred_time)}</div>` : ''}
+                        ${r.manager_reply ? `<div class="req-reply"><strong>팀장 답변</strong><br/>${escapeHtml(r.manager_reply)}</div>` : ''}
+                        <div class="req-actions">
+                          ${r.status === 'pending' ? `<button data-req-cancel="${r.id}">요청 취소</button>` : ''}
+                        </div>
+                      </div>
+                    `;
+                  }).join('')
+              }
+            </div>
+          `}
+        </div>
+        <div class="modal-foot">
+          <button class="cancel" id="m-cancel">${m.mode === 'send' ? '취소' : '닫기'}</button>
+          ${m.mode === 'send' ? '<button class="confirm" id="req-send">보내기</button>' : ''}
+        </div>
+      </div>`;
+  } else if (m.type === 'requestsInbox') {
+    const filter = m.filter || 'pending';
+    const counts = {
+      pending: state.requests.filter(r => r.status === 'pending').length,
+      accepted: state.requests.filter(r => r.status === 'accepted').length,
+      done: state.requests.filter(r => r.status === 'completed' || r.status === 'declined').length
+    };
+    const visible = state.requests.filter(r => {
+      if (filter === 'pending') return r.status === 'pending';
+      if (filter === 'accepted') return r.status === 'accepted';
+      return r.status === 'completed' || r.status === 'declined';
+    });
+    bd.innerHTML = `
+      <div class="modal request-modal">
+        <div class="modal-head">
+          <h2>📩 받은 요청</h2>
+          <p>팀원이 보낸 요청을 확인하고 처리합니다.</p>
+        </div>
+        <div class="modal-body">
+          <div class="req-tabs">
+            <button class="${filter === 'pending' ? 'active' : ''}" data-inbox-tab="pending">⬤ 대기 (${counts.pending})</button>
+            <button class="${filter === 'accepted' ? 'active' : ''}" data-inbox-tab="accepted">✓ 수락 (${counts.accepted})</button>
+            <button class="${filter === 'done' ? 'active' : ''}" data-inbox-tab="done">완료/거절 (${counts.done})</button>
+          </div>
+          <div class="req-list">
+            ${visible.length === 0
+              ? `<div class="req-empty">${filter === 'pending' ? '대기 중인 요청이 없어요. 🎉' : '항목이 없어요.'}</div>`
+              : visible.map(r => {
+                  const meta = reqTypeMeta(r.request_type);
+                  const showReply = m.replyingTo === r.id;
+                  return `
+                    <div class="req-card ${r.status}">
+                      <div class="req-head">
+                        <div>
+                          <span class="req-from">${escapeHtml(r.from_user)}</span>
+                          <span class="req-type-badge">${meta.emoji} ${meta.label}</span>
+                        </div>
+                        <span style="font-size:11px; color:var(--ink-3); font-family:var(--mono);">${formatRelative(r.created_at)}</span>
+                      </div>
+                      <div class="req-msg">${escapeHtml(r.message)}</div>
+                      ${r.preferred_time ? `<div class="req-pref">⏰ 선호 시간: ${escapeHtml(r.preferred_time)}</div>` : ''}
+                      ${r.manager_reply ? `<div class="req-reply"><strong>내 답변</strong><br/>${escapeHtml(r.manager_reply)}</div>` : ''}
+                      <div style="margin-top:6px;"><span class="req-status ${r.status}">${statusLabel(r.status)}</span></div>
+                      <div class="req-actions">
+                        ${r.status === 'pending' ? `
+                          <button class="accept" data-req-accept="${r.id}">✓ 수락</button>
+                          <button class="decline" data-req-decline="${r.id}">✗ 거절</button>
+                          <button class="reply" data-req-reply="${r.id}">💬 답변</button>
+                        ` : ''}
+                        ${r.status === 'accepted' ? `
+                          <button class="complete" data-req-complete="${r.id}">✓ 완료 처리</button>
+                          <button class="reply" data-req-reply="${r.id}">💬 답변 ${r.manager_reply ? '수정' : '추가'}</button>
+                        ` : ''}
+                        ${(r.status === 'completed' || r.status === 'declined') ? `
+                          <button data-req-delete="${r.id}" title="삭제">🗑</button>
+                        ` : ''}
+                      </div>
+                      ${showReply ? `
+                        <div class="reply-form">
+                          <textarea id="reply-text-${r.id}" placeholder="답변을 입력하세요...">${escapeHtml(r.manager_reply || '')}</textarea>
+                          <div class="reply-actions">
+                            <button data-reply-cancel="${r.id}">취소</button>
+                            <button class="save" data-reply-save="${r.id}">저장</button>
+                          </div>
+                        </div>
+                      ` : ''}
+                    </div>
+                  `;
+                }).join('')
+            }
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="cancel" id="m-cancel" style="flex:1;">닫기</button>
+        </div>
+      </div>`;
   } else if (m.type === 'editBlock') {
     const t = state.data.tasks.find(x => x.id === m.taskId);
     if (!t) { state.modal = null; return; }
@@ -2701,7 +3125,138 @@ function renderModal() {
     handleSearchModal(m);
   } else if (m.type === 'repeats') {
     handleRepeatsModal(m);
+  } else if (m.type === 'requestsSend') {
+    handleRequestsSendModal(m);
+  } else if (m.type === 'requestsInbox') {
+    handleRequestsInboxModal(m);
   }
+}
+
+function handleRequestsSendModal(m) {
+  // Tab switching
+  document.querySelectorAll('[data-tab]').forEach(b => {
+    b.onclick = () => { m.mode = b.dataset.tab; render(); };
+  });
+  if (m.mode === 'send') {
+    // Type selection
+    document.querySelectorAll('[data-req-type]').forEach(b => {
+      b.onclick = () => {
+        m.composing.requestType = b.dataset.reqType;
+        document.querySelectorAll('[data-req-type]').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+      };
+    });
+    // Track input live (so tab switch doesn't lose draft)
+    const msgEl = document.getElementById('req-msg');
+    const timeEl = document.getElementById('req-time');
+    msgEl?.addEventListener('input', () => { m.composing.message = msgEl.value; });
+    timeEl?.addEventListener('input', () => { m.composing.preferredTime = timeEl.value; });
+    // Send
+    document.getElementById('req-send')?.addEventListener('click', async () => {
+      const msg = (msgEl?.value || '').trim();
+      if (!msg) { showError('메시지를 입력해주세요.'); return; }
+      const created = await createRequest({
+        requestType: m.composing.requestType,
+        message: msg,
+        preferredTime: (timeEl?.value || '').trim()
+      });
+      if (created) {
+        state.requests.unshift(created);
+        // Switch to "mine" tab to show the new request
+        m.mode = 'mine';
+        m.composing = { requestType: 'tea', message: '', preferredTime: '' };
+        render();
+        // Optionally show a success toast — for now, the tab switch is feedback
+      }
+    });
+  } else {
+    // Cancel a sent request (only pending)
+    document.querySelectorAll('[data-req-cancel]').forEach(b => {
+      b.onclick = async () => {
+        const id = b.dataset.reqCancel;
+        await deleteRequest(id);
+        state.requests = state.requests.filter(r => r.id !== id);
+        render();
+      };
+    });
+  }
+}
+
+function handleRequestsInboxModal(m) {
+  // Tab switching
+  document.querySelectorAll('[data-inbox-tab]').forEach(b => {
+    b.onclick = () => { m.filter = b.dataset.inboxTab; m.replyingTo = null; render(); };
+  });
+  // Accept
+  document.querySelectorAll('[data-req-accept]').forEach(b => {
+    b.onclick = async () => {
+      const id = b.dataset.reqAccept;
+      const ok = await updateRequestStatus(id, 'accepted');
+      if (ok) {
+        const r = state.requests.find(x => x.id === id);
+        if (r) r.status = 'accepted';
+        state.pendingRequestCount = state.requests.filter(x => x.status === 'pending').length;
+        render();
+      }
+    };
+  });
+  // Decline
+  document.querySelectorAll('[data-req-decline]').forEach(b => {
+    b.onclick = async () => {
+      const id = b.dataset.reqDecline;
+      const ok = await updateRequestStatus(id, 'declined');
+      if (ok) {
+        const r = state.requests.find(x => x.id === id);
+        if (r) r.status = 'declined';
+        state.pendingRequestCount = state.requests.filter(x => x.status === 'pending').length;
+        render();
+      }
+    };
+  });
+  // Complete
+  document.querySelectorAll('[data-req-complete]').forEach(b => {
+    b.onclick = async () => {
+      const id = b.dataset.reqComplete;
+      const ok = await updateRequestStatus(id, 'completed');
+      if (ok) {
+        const r = state.requests.find(x => x.id === id);
+        if (r) r.status = 'completed';
+        render();
+      }
+    };
+  });
+  // Reply (open form)
+  document.querySelectorAll('[data-req-reply]').forEach(b => {
+    b.onclick = () => { m.replyingTo = b.dataset.reqReply; render(); };
+  });
+  // Reply save
+  document.querySelectorAll('[data-reply-save]').forEach(b => {
+    b.onclick = async () => {
+      const id = b.dataset.replySave;
+      const text = document.getElementById(`reply-text-${id}`)?.value?.trim() || '';
+      const r = state.requests.find(x => x.id === id);
+      if (!r) return;
+      const ok = await updateRequestStatus(id, r.status, text);
+      if (ok) {
+        r.manager_reply = text;
+        m.replyingTo = null;
+        render();
+      }
+    };
+  });
+  // Reply cancel
+  document.querySelectorAll('[data-reply-cancel]').forEach(b => {
+    b.onclick = () => { m.replyingTo = null; render(); };
+  });
+  // Delete (only done items)
+  document.querySelectorAll('[data-req-delete]').forEach(b => {
+    b.onclick = async () => {
+      const id = b.dataset.reqDelete;
+      await deleteRequest(id);
+      state.requests = state.requests.filter(r => r.id !== id);
+      render();
+    };
+  });
 }
 
 function handleSearchModal(m) {
