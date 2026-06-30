@@ -359,7 +359,7 @@
 
 
   /* ===== Dark mode ===== */
-  [data-theme="dark"] {
+  [data-theme="dark"], html.dark-mode, .dark-mode {
     --bg: #0F1117;
     --surface: #1A1D26;
     --surface-2: #242833;
@@ -373,6 +373,11 @@
     --brand-soft: #1E2A52;
     --danger-soft: #3D1F1F;
   }
+  html.dark-mode, html[data-theme="dark"] { background: #0F1117; color: #E5E7EB; }
+  html.dark-mode body, html[data-theme="dark"] body { background: #0F1117; color: #E5E7EB; }
+  html.dark-mode .topbar, html[data-theme="dark"] .topbar { background: #1A1D26; border-bottom-color: #2D3140; }
+  html.dark-mode .col, html[data-theme="dark"] .col { background: #1A1D26; }
+  html.dark-mode .login-card, html[data-theme="dark"] .login-card { background: #1A1D26; }
   [data-theme="dark"] .login-hero { background: linear-gradient(135deg, #2E48D6, #1A2D8A); }
   [data-theme="dark"] .morning { background: linear-gradient(135deg, #1E2233, #1E2A52); border-color: #2D3D6E; }
   [data-theme="dark"] .rabbit-card { background: linear-gradient(135deg, #2D2419, #3D2E1A); border-color: #5E4318; }
@@ -453,6 +458,59 @@
   .repeat-item.inactive { opacity: 0.5; }
   .repeat-empty { padding: 30px; text-align: center; color: var(--ink-3); font-size: 13px; font-style: italic; }
 
+
+  /* ===== Block hover tooltip ===== */
+  .block .block-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 17, 23, 0.92);
+    color: #F3F4F6;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    min-width: 180px;
+    max-width: 300px;
+  }
+  .block .block-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(15, 17, 23, 0.92);
+  }
+  .block:hover .block-tooltip { display: block; }
+  .block .block-tooltip .tt-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; white-space: normal; word-break: keep-all; }
+  .block .block-tooltip .tt-row { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; color: #B8BCC8; }
+  .block .block-tooltip .tt-row .tt-val { color: #F3F4F6; font-weight: 600; font-family: var(--mono); }
+  .block .block-tooltip .tt-status { margin-top: 4px; font-size: 11px; font-weight: 700; }
+  .block .block-tooltip .tt-status.done { color: #4ADE80; }
+  .block .block-tooltip .tt-status.pending { color: #F4A553; }
+  /* 블록이 화면 상단에 있을 때 툴팁이 위로 넘치면 아래로 */
+  .block[style*="top:0px"] .block-tooltip,
+  .block[style*="top:22px"] .block-tooltip,
+  .block[style*="top:44px"] .block-tooltip {
+    bottom: auto;
+    top: calc(100% + 6px);
+  }
+  .block[style*="top:0px"] .block-tooltip::after,
+  .block[style*="top:22px"] .block-tooltip::after,
+  .block[style*="top:44px"] .block-tooltip::after {
+    top: auto;
+    bottom: 100%;
+    border-top-color: transparent;
+    border-bottom-color: rgba(15, 17, 23, 0.92);
+  }
+
   /* ===== Block draggable ===== */
   .block.dragging { opacity: 0.4; }
   .block { cursor: grab; }
@@ -465,6 +523,146 @@
   [data-theme="dark"] .user-menu .toggle-switch { background: var(--brand); }
   [data-theme="dark"] .user-menu .toggle-switch::after { left: 16px; }
 
+
+
+
+  /* ===== Pending requests banner (team view) ===== */
+  .pending-banner {
+    background: linear-gradient(135deg, #FFF4E8, #FFE7CC);
+    border: 1.5px solid #F4A553;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(244, 122, 43, 0.12);
+  }
+  html.dark-mode .pending-banner, html[data-theme="dark"] .pending-banner {
+    background: linear-gradient(135deg, #3D2E1A, #2D2419);
+    border-color: #6E5318;
+  }
+  .pending-banner .banner-info { display: flex; align-items: center; gap: 10px; }
+  .pending-banner .banner-icon { font-size: 22px; }
+  .pending-banner .banner-text { font-size: 14px; }
+  .pending-banner .banner-text strong { color: #D97706; font-weight: 800; margin-right: 4px; }
+  html.dark-mode .pending-banner .banner-text strong, html[data-theme="dark"] .pending-banner .banner-text strong { color: #F4A553; }
+  .pending-banner .banner-subtext { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .pending-banner .banner-cta {
+    padding: 8px 16px;
+    background: white;
+    border: 1.5px solid #F4A553;
+    border-radius: 8px;
+    color: #D97706;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .pending-banner .banner-cta:hover { background: #FFF4E8; }
+  html.dark-mode .pending-banner .banner-cta, html[data-theme="dark"] .pending-banner .banner-cta {
+    background: #1A1D26; color: #F4A553; border-color: #6E5318;
+  }
+
+  /* ===== Member quick nav (when manager viewing another) ===== */
+  .member-quicknav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--rule);
+    padding: 8px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 60px;
+    z-index: 40;
+  }
+  .member-quicknav .qn-back {
+    padding: 6px 12px;
+    background: var(--surface-2);
+    border: 1.5px solid var(--rule);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .member-quicknav .qn-back:hover { border-color: var(--brand); color: var(--brand); }
+  .member-quicknav .qn-label {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 600;
+    margin: 0 4px 0 8px;
+  }
+  .member-quicknav .qn-pill {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1.5px solid var(--rule);
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-2);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .member-quicknav .qn-pill:hover {
+    border-color: var(--brand);
+    color: var(--brand);
+  }
+  .member-quicknav .qn-pill.active {
+    background: var(--brand);
+    color: white;
+    border-color: var(--brand);
+  }
+  .member-quicknav .qn-pill .qn-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--c-green);
+    display: inline-block;
+  }
+  .member-quicknav .qn-pill.active .qn-dot { background: white; }
+
+  /* ===== Notification button (topbar) ===== */
+  .notif-btn {
+    position: relative;
+    padding: 7px 12px;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface-2);
+    border: 1.5px solid var(--rule);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+    transition: all 0.1s;
+    line-height: 1;
+  }
+  .notif-btn:hover { border-color: var(--brand); background: var(--surface); color: var(--brand); }
+  .notif-btn.has-new { border-color: var(--brand); background: var(--brand-soft); color: var(--brand); }
+  html.dark-mode .notif-btn.has-new, html[data-theme="dark"] .notif-btn.has-new { background: #1E2A52; }
+  .notif-btn .notif-icon { font-size: 14px; line-height: 1; }
+  .notif-btn .notif-label { font-size: 12px; font-weight: 600; }
+  .notif-btn .notif-count {
+    min-width: 18px; height: 18px;
+    padding: 0 5px;
+    background: #E14B4B;
+    color: white;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    box-shadow: 0 1px 3px rgba(225,75,75,0.4);
+  }
+  @media (max-width: 700px) {
+    .notif-btn .notif-label { display: none; }
+    .notif-btn { padding: 7px 9px; }
+  }
 
   /* ===== Search trigger (topbar) ===== */
   .search-trigger {
@@ -1083,8 +1281,16 @@ async function applyRepeatsForToday() {
 }
 
 function applyDarkMode() {
-  if (state.darkMode) document.documentElement.setAttribute('data-theme', 'dark');
-  else document.documentElement.removeAttribute('data-theme');
+  const html = document.documentElement;
+  if (state.darkMode) {
+    html.setAttribute('data-theme', 'dark');
+    html.classList.add('dark-mode');
+    if (document.body) document.body.classList.add('dark-mode');
+  } else {
+    html.removeAttribute('data-theme');
+    html.classList.remove('dark-mode');
+    if (document.body) document.body.classList.remove('dark-mode');
+  }
 }
 function toggleDarkMode() {
   state.darkMode = !state.darkMode;
@@ -1380,8 +1586,30 @@ async function deleteRequest(id) {
   }
 }
 
+
+function unseenRequestsCount() {
+  if (!state.currentUser || state.currentUser.viewingAs) return 0;
+  const role = state.currentUser.originalRole || state.currentUser.role;
+  const lastSeenKey = 'timeboxing_lastSeenReq_' + state.currentUser.name;
+  const lastSeen = localStorage.getItem(lastSeenKey) || '1970-01-01T00:00:00Z';
+  if (role === 'manager') {
+    // 매니저: 본 적 없는 대기 중 요청
+    return state.requests.filter(r => r.status === 'pending' && r.created_at > lastSeen).length;
+  } else {
+    // 팀원: 본인 요청 중 마지막 본 이후 업데이트된 것 (수락/거절/완료/답변)
+    return state.requests.filter(r => r.updated_at > lastSeen && r.status !== 'pending').length;
+  }
+}
+
+function markRequestsSeen() {
+  if (!state.currentUser || state.currentUser.viewingAs) return;
+  const lastSeenKey = 'timeboxing_lastSeenReq_' + state.currentUser.name;
+  localStorage.setItem(lastSeenKey, new Date().toISOString());
+}
+
 async function openRequestsModal() {
   await refreshRequests();
+  markRequestsSeen();
   const role = state.currentUser.originalRole || state.currentUser.role;
   if (role === 'manager') {
     openModal({ type: 'requestsInbox', filter: 'pending' });
@@ -1438,6 +1666,16 @@ function renderTopbar() {
           <span class="search-text">일정 검색...</span>
           <span class="kbd">⌘K</span>
         </button>` : ''}
+        ${!u.viewingAs ? (() => {
+          const n = unseenRequestsCount();
+          const isMgr = (u.originalRole || u.role) === 'manager';
+          const lbl = isMgr ? '받은 요청' : '내 요청';
+          return `<button class="notif-btn ${n > 0 ? 'has-new' : ''}" id="topbar-requests" title="${lbl}">
+            <span class="notif-icon">📩</span>
+            <span class="notif-label">${lbl}</span>
+            ${n > 0 ? `<span class="notif-count">${n > 99 ? '99+' : n}</span>` : ''}
+          </button>`;
+        })() : ''}
         <div class="user-chip" id="user-chip">
           <div class="avatar">${escapeHtml(initials(u.name))}</div>
           <div class="info">
@@ -1458,6 +1696,26 @@ function renderTopbar() {
           ` : ''}
         </div>
       </div>
+    </div>
+  `;
+}
+
+function renderMemberQuickNav() {
+  // 매니저가 다른 팀원 보고 있을 때만
+  if (!state.currentUser?.viewingAs) return '';
+  if (!state.managerOrigin) return '';
+  const currentName = state.currentUser.name;
+  const members = state.roster.filter(m => m.name !== state.managerOrigin.name);
+  if (members.length === 0) return '';
+  return `
+    <div class="member-quicknav">
+      <button class="qn-back" id="qn-back-team">← 전체 팀</button>
+      <span class="qn-label">팀원 선택:</span>
+      ${members.map(m => `
+        <button class="qn-pill ${m.name === currentName ? 'active' : ''}" data-qn-member="${escapeAttr(m.name)}">
+          ${m.role === 'manager' ? '👑 ' : ''}${escapeHtml(m.name)}
+        </button>
+      `).join('')}
     </div>
   `;
 }
@@ -1524,6 +1782,9 @@ function attachGlobalEvents() {
     await openRequestsModal();
   });
   document.getElementById('open-search')?.addEventListener('click', () => openSearchModal());
+  document.getElementById('topbar-requests')?.addEventListener('click', async () => {
+    await openRequestsModal();
+  });
 
   // Click outside closes menus
   document.body.onclick = e => {
@@ -1580,6 +1841,27 @@ function attachGlobalEvents() {
     state.subview = 'team';
     state.managerData = await loadAllToday();
     render();
+  });
+  document.getElementById('qn-back-team')?.addEventListener('click', async () => {
+    if (state.managerOrigin) { state.currentUser = state.managerOrigin; state.managerOrigin = null; }
+    state.subview = 'team';
+    state.managerData = await loadAllToday();
+    render();
+  });
+  document.querySelectorAll('[data-qn-member]').forEach(b => {
+    b.onclick = async () => {
+      const name = b.dataset.qnMember;
+      if (name === state.currentUser.name) return;
+      const member = state.roster.find(x => x.name === name);
+      if (!member) return;
+      // managerOrigin 유지 (이미 viewingAs 모드에서 다른 멤버로 이동)
+      state.currentUser = { ...member, viewingAs: true, originalRole: 'manager' };
+      state.subview = 'daily';
+      state.currentDate = state.today;
+      state.data = await loadDay(member.name, state.currentDate);
+      await reloadMonthCalendar();
+      render();
+    };
   });
 }
 
@@ -1687,7 +1969,7 @@ function runSearch() {
   const m = state.modal;
   if (!m || m.type !== 'search' || !m.allDays) return;
   const q = m.query.trim().toLowerCase();
-  if (!q) { m.results = []; render(); return; }
+  if (!q) { m.results = []; renderSearchResultsOnly(); return; }
   const out = [];
   for (const day of m.allDays) {
     for (const t of (day.tasks || [])) {
@@ -1700,7 +1982,60 @@ function runSearch() {
     if (out.length >= 50) break;
   }
   m.results = out;
-  render();
+  renderSearchResultsOnly();
+}
+
+function renderSearchResultsOnly() {
+  const m = state.modal;
+  if (!m || m.type !== 'search') return;
+  const area = document.getElementById('search-results-area');
+  if (!area) { render(); return; }
+  const q = m.query.trim();
+  const results = m.results || [];
+  const loading = m.allDays === null;
+  let inner = '';
+  if (!q) {
+    inner = `
+      <div class="search-tips">
+        <strong>📌 검색 대상</strong> · 일정 이름, 아침 계획, 회고 텍스트<br/>
+        <strong>📅 범위</strong> · 본인의 최근 1년 데이터<br/>
+        <strong>↵ 결과 클릭</strong> · 해당 날짜로 바로 이동<br/>
+        <strong>⌨ 단축키</strong> · Ctrl/⌘ + K 로 언제든 열기
+      </div>
+      <div class="search-empty" style="padding:20px;">↑ 검색어를 입력하세요</div>`;
+  } else if (loading) {
+    inner = '<div class="search-empty">데이터를 불러오는 중...</div>';
+  } else if (results.length === 0) {
+    inner = `<div class="search-empty">'${escapeHtml(q)}'에 대한 결과가 없습니다.</div>`;
+  } else {
+    inner = `<div class="search-results">` + results.map(r => {
+      const ki = r.kind === 'task' ? '📌' : r.kind === 'morning' ? '☀️' : '📝';
+      const kl = r.kind === 'task' ? '일정' : r.kind === 'morning' ? '아침 계획' : '회고';
+      const cb = (r.kind === 'task') ? `<span class="res-color" style="background:linear-gradient(135deg, var(--c-${r.task.color}-from), var(--c-${r.task.color}-to))"></span>` : '';
+      const text = r.kind === 'task' ? r.task.name : r.text;
+      const hl = highlightMatch(text, q);
+      const meta = r.kind === 'task' && r.task.slot != null
+        ? ` · ${slotToTime(r.task.slot)} (${r.task.minutes}분)` : '';
+      return `
+        <div class="search-result" data-go-date="${r.date}">
+          <div class="res-meta">${cb}<span>${ki} ${kl} · ${formatDateLong(r.date)}${meta}</span></div>
+          <div class="res-text">${hl}</div>
+        </div>`;
+    }).join('') + `</div>`;
+  }
+  area.innerHTML = inner;
+  // 결과 클릭 핸들러 재등록
+  area.querySelectorAll('[data-go-date]').forEach(el => {
+    el.onclick = async () => {
+      const date = el.dataset.goDate;
+      state.currentDate = date;
+      state.calendarMonth = date.slice(0, 7);
+      await reloadMonthCalendar();
+      state.data = await loadDay(state.currentUser.name, date);
+      state.subview = 'daily';
+      closeModal(); render();
+    };
+  });
 }
 
 // Keyboard shortcut
@@ -1723,6 +2058,7 @@ function renderDaily() {
   app.innerHTML = `
     ${renderTopbar()}
     ${!readOnly ? renderSubnav() : ''}
+    ${readOnly ? renderMemberQuickNav() : ''}
     ${readOnly ? `<div class="readonly-banner">읽기 전용 · ${escapeHtml(u.name)}님의 ${state.currentDate}</div>` : ''}
     ${!readOnly ? renderActionBar() : ''}
     <div class="daily">
@@ -1905,8 +2241,21 @@ function renderTimeline() {
       const top = t.slot * 22, height = sc * 22 - 3;
       const dSt = dueStatus(t.dueDate, state.today);
       const dIcon = (dSt === 'overdue') ? ' ⚠️' : (dSt === 'today') ? ' 📅' : '';
+      const catLabel = COLORS[t.color] ? COLORS[t.color].label : t.color;
+      const statusTxt = t.done ? '✅ 완료' : '⏳ 진행 예정';
+      const statusCls = t.done ? 'done' : 'pending';
+      const dueTxt = t.dueDate ? (dueLabel(t.dueDate, state.today)) : '';
       return `
         <div class="block ${t.color} ${t.done ? 'done' : ''}" draggable="true" data-block="${t.id}" style="top:${top}px; height:${height}px;">
+          <div class="block-tooltip">
+            <div class="tt-name">${escapeHtml(t.name)}</div>
+            <div class="tt-row"><span>시간</span><span class="tt-val">${timeRange(t.slot, t.minutes)}</span></div>
+            <div class="tt-row"><span>길이</span><span class="tt-val">${t.minutes}분</span></div>
+            <div class="tt-row"><span>카테고리</span><span class="tt-val">${catLabel}</span></div>
+            ${dueTxt ? `<div class="tt-row"><span>마감일</span><span class="tt-val">${dueTxt}</span></div>` : ''}
+            ${t.fromTemplate ? `<div class="tt-row"><span>유형</span><span class="tt-val">🔁 반복 일정</span></div>` : ''}
+            <div class="tt-status ${statusCls}">${statusTxt}</div>
+          </div>
           <div class="time">${timeRange(t.slot, t.minutes)}${dIcon}</div>
           <div class="name">${escapeHtml(t.name)}</div>
           <div class="actions">
@@ -1966,7 +2315,18 @@ function attachDailyEvents() {
   document.querySelectorAll('.size-pills button[data-min]').forEach(b => {
     b.onclick = () => {
       const t = state.data.tasks.find(x => x.id === b.dataset.id);
-      if (t && t.slot === null) { t.minutes = parseInt(b.dataset.min); t.pendingSlot = null; saveDay(); render(); }
+      if (t && t.slot === null) {
+        t.minutes = parseInt(b.dataset.min);
+        // pendingSlot 보존 — 시작 시각을 이미 골랐으면 유지
+        // 단, 새 크기로 인해 시작 시각이 유효하지 않게 되면 초기화
+        if (t.pendingSlot !== null && t.pendingSlot !== undefined) {
+          const slotsNeeded = minutesToSlots(t.minutes);
+          if (t.pendingSlot + slotsNeeded > TOTAL_SLOTS) {
+            t.pendingSlot = null; // 끝 시간이 넘어감 — 초기화
+          }
+        }
+        saveDay(); render();
+      }
     };
   });
   document.querySelectorAll('.color-dot[data-color]').forEach(d => {
@@ -2436,6 +2796,25 @@ async function renderTeam() {
           <div class="date">${formatDateLong(state.today)} · 전체 ${state.roster.length}명</div>
         </div>
       </div>
+
+      ${(() => {
+        const pending = state.requests.filter(r => r.status === 'pending');
+        if (pending.length === 0) return '';
+        const names = [...new Set(pending.map(r => r.from_user))].slice(0, 3).join(', ');
+        const more = pending.length > 3 ? ` 외 ${pending.length - 3}건` : '';
+        return `
+          <div class="pending-banner">
+            <div class="banner-info">
+              <div class="banner-icon">📩</div>
+              <div>
+                <div class="banner-text"><strong>${pending.length}건</strong> 새 요청이 대기 중입니다</div>
+                <div class="banner-subtext">${escapeHtml(names)}${more}님이 보낸 요청</div>
+              </div>
+            </div>
+            <button class="banner-cta" id="team-open-requests">보러 가기 →</button>
+          </div>
+        `;
+      })()}
       <div class="self-cta">
         <div>
           <h2>${escapeHtml(me.name)}님의 타임박싱</h2>
@@ -2472,6 +2851,9 @@ async function renderTeam() {
   `;
 
   attachGlobalEvents();
+  document.getElementById('team-open-requests')?.addEventListener('click', async () => {
+    await openRequestsModal();
+  });
   document.getElementById('go-self').onclick = async () => {
     state.subview = 'daily';
     state.currentDate = state.today;
@@ -2698,6 +3080,7 @@ function renderModal() {
           <input type="text" id="search-input" value="${escapeAttr(q)}" placeholder="검색어 입력 (예: 회의, 보고서, 자료 조사)" />
         </div>
         <div class="modal-body" style="padding-top:0;">
+          <div id="search-results-area">
           ${!q.trim() ? `
             <div class="search-tips">
               <strong>📌 검색 대상</strong> · 일정 이름, 아침 계획, 회고 텍스트<br/>
@@ -2726,6 +3109,7 @@ function renderModal() {
               }).join('')}
             </div>`
           }
+          </div>
         </div>
         <div class="modal-foot">
           <button class="cancel" id="m-cancel" style="flex:1;">닫기</button>
@@ -3263,8 +3647,19 @@ function handleSearchModal(m) {
   const input = document.getElementById('search-input');
   if (input) {
     input.oninput = () => { m.query = input.value; runSearch(); };
-    setTimeout(() => input.focus(), 50);
+    // focus는 모달이 막 열렸을 때만 (값이 비어있을 때)
+    if (!m.query) {
+      setTimeout(() => input.focus(), 50);
+    } else {
+      // 이미 값이 있으면 (다른 이유로 render된 경우) cursor 끝으로
+      setTimeout(() => {
+        input.focus();
+        const v = input.value;
+        input.setSelectionRange(v.length, v.length);
+      }, 50);
+    }
   }
+  // 결과 클릭 핸들러는 renderSearchResultsOnly에서도 등록되지만, 첫 로드 시에도 등록
   document.querySelectorAll('[data-go-date]').forEach(el => {
     el.onclick = async () => {
       const date = el.dataset.goDate;
