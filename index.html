@@ -186,6 +186,12 @@
   .slot.drag-target { background: var(--brand-soft); }
 
   .block { position: absolute; left: 8px; right: 8px; border-radius: 8px; padding: 7px 11px; font-size: 12px; line-height: 1.3; color: white; overflow: hidden; cursor: pointer; z-index: 2; box-shadow: 0 2px 6px rgba(20,30,60,0.15); transition: all 0.1s; }
+  .block.compact { padding: 2px 8px; font-size: 11px; line-height: 1.1; display: flex; align-items: center; gap: 6px; }
+  .block.compact .time { font-size: 9px; opacity: 0.85; flex-shrink: 0; }
+  .block.compact .name { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+  .block.compact .actions { position: static; display: flex; gap: 2px; opacity: 0; flex-shrink: 0; }
+  .block.compact:hover .actions { opacity: 1; }
+  .block.compact .actions button { width: 16px; height: 16px; font-size: 9px; }
   .block:hover { box-shadow: 0 4px 12px rgba(20,30,60,0.2); transform: translateY(-1px); }
   .block.blue { background: linear-gradient(135deg, var(--c-blue-from), var(--c-blue-to)); }
   .block.cyan { background: linear-gradient(135deg, var(--c-cyan-from), var(--c-cyan-to)); }
@@ -1300,21 +1306,41 @@ function toggleDarkMode() {
   render();
 }
 async function reloadMonthCalendar() {
-  if (!state.currentUser || state.currentUser.viewingAs) return;
+  if (!state.currentUser) return;
+  // viewingAs 모드에서도 해당 멤버의 월 데이터를 로드
   state.monthHasData = await loadMonthDays(state.currentUser.name, state.calendarMonth);
 }
 
 // "Remember me" — use browser localStorage (only stores the user name)
+const SESSION_MAX_HOURS = 12;
+
 function rememberUser(u) {
   try {
-    if (u) localStorage.setItem('timeboxing_remembered_name', u.name);
-    else localStorage.removeItem('timeboxing_remembered_name');
+    if (u) {
+      localStorage.setItem('timeboxing_remembered_name', u.name);
+      localStorage.setItem('timeboxing_session_start', new Date().toISOString());
+    } else {
+      localStorage.removeItem('timeboxing_remembered_name');
+      localStorage.removeItem('timeboxing_session_start');
+    }
   } catch {}
 }
 function getRememberedUser() {
   try {
     const name = localStorage.getItem('timeboxing_remembered_name');
-    return name ? { name } : null;
+    if (!name) return null;
+    // 세션 만료 체크
+    const sessionStart = localStorage.getItem('timeboxing_session_start');
+    if (sessionStart) {
+      const elapsed = (Date.now() - new Date(sessionStart).getTime()) / (1000 * 60 * 60);
+      if (elapsed > SESSION_MAX_HOURS) {
+        // 12시간 초과 — 세션 만료
+        localStorage.removeItem('timeboxing_remembered_name');
+        localStorage.removeItem('timeboxing_session_start');
+        return null;
+      }
+    }
+    return { name };
   } catch { return null; }
 }
 
@@ -2059,11 +2085,11 @@ function renderDaily() {
     ${renderTopbar()}
     ${!readOnly ? renderSubnav() : ''}
     ${readOnly ? renderMemberQuickNav() : ''}
-    ${readOnly ? `<div class="readonly-banner">읽기 전용 · ${escapeHtml(u.name)}님의 ${state.currentDate}</div>` : ''}
+    ${readOnly ? `<div class="readonly-banner">📋 읽기 전용 · ${escapeHtml(u.name)}님의 ${formatDateLong(state.currentDate)} — 달력에서 다른 날짜를 선택하여 조회할 수 있습니다</div>` : ''}
     ${!readOnly ? renderActionBar() : ''}
     <div class="daily">
       <div class="col">
-        ${!readOnly ? renderMiniCalendar() : ''}
+        ${renderMiniCalendar()}
         <div class="col-header">
           <span class="step">01 · 계획</span>
           <h2>아침 15분</h2>
@@ -2245,17 +2271,34 @@ function renderTimeline() {
       const statusTxt = t.done ? '✅ 완료' : '⏳ 진행 예정';
       const statusCls = t.done ? 'done' : 'pending';
       const dueTxt = t.dueDate ? (dueLabel(t.dueDate, state.today)) : '';
+      const isCompact = sc <= 1; // 15분 이하 = compact 모드
+      const tooltipHtml = `
+        <div class="block-tooltip">
+          <div class="tt-name">${escapeHtml(t.name)}</div>
+          <div class="tt-row"><span>시간</span><span class="tt-val">${timeRange(t.slot, t.minutes)}</span></div>
+          <div class="tt-row"><span>길이</span><span class="tt-val">${t.minutes}분</span></div>
+          <div class="tt-row"><span>카테고리</span><span class="tt-val">${catLabel}</span></div>
+          ${dueTxt ? `<div class="tt-row"><span>마감일</span><span class="tt-val">${dueTxt}</span></div>` : ''}
+          ${t.fromTemplate ? `<div class="tt-row"><span>유형</span><span class="tt-val">🔁 반복 일정</span></div>` : ''}
+          <div class="tt-status ${statusCls}">${statusTxt}</div>
+        </div>
+      `;
+      if (isCompact) {
+        return `
+          <div class="block compact ${t.color} ${t.done ? 'done' : ''}" draggable="true" data-block="${t.id}" style="top:${top}px; height:${height}px;">
+            ${tooltipHtml}
+            <span class="time">${slotToTime(t.slot)}</span>
+            <span class="name">${escapeHtml(t.name)}</span>
+            <div class="actions">
+              <button data-toggle="${t.id}" title="완료">✓</button>
+              <button data-edit="${t.id}" title="편집">⋯</button>
+            </div>
+          </div>
+        `;
+      }
       return `
         <div class="block ${t.color} ${t.done ? 'done' : ''}" draggable="true" data-block="${t.id}" style="top:${top}px; height:${height}px;">
-          <div class="block-tooltip">
-            <div class="tt-name">${escapeHtml(t.name)}</div>
-            <div class="tt-row"><span>시간</span><span class="tt-val">${timeRange(t.slot, t.minutes)}</span></div>
-            <div class="tt-row"><span>길이</span><span class="tt-val">${t.minutes}분</span></div>
-            <div class="tt-row"><span>카테고리</span><span class="tt-val">${catLabel}</span></div>
-            ${dueTxt ? `<div class="tt-row"><span>마감일</span><span class="tt-val">${dueTxt}</span></div>` : ''}
-            ${t.fromTemplate ? `<div class="tt-row"><span>유형</span><span class="tt-val">🔁 반복 일정</span></div>` : ''}
-            <div class="tt-status ${statusCls}">${statusTxt}</div>
-          </div>
+          ${tooltipHtml}
           <div class="time">${timeRange(t.slot, t.minutes)}${dIcon}</div>
           <div class="name">${escapeHtml(t.name)}</div>
           <div class="actions">
@@ -2870,7 +2913,9 @@ async function renderTeam() {
       state.currentUser = { ...member, viewingAs: true, originalRole: 'manager' };
       state.subview = 'daily';
       state.currentDate = state.today;
+      state.calendarMonth = state.today.slice(0, 7);
       state.data = await loadDay(member.name, state.currentDate);
+      state.monthHasData = await loadMonthDays(member.name, state.calendarMonth);
       render();
     };
   });
@@ -3765,6 +3810,26 @@ async function boot() {
   state.view = 'login';
   render();
 }
+
+// 세션 만료 주기적 체크 (30분마다)
+setInterval(() => {
+  if (state.view !== 'app' || !state.currentUser) return;
+  const sessionStart = localStorage.getItem('timeboxing_session_start');
+  if (!sessionStart) return;
+  const elapsed = (Date.now() - new Date(sessionStart).getTime()) / (1000 * 60 * 60);
+  if (elapsed > SESSION_MAX_HOURS) {
+    rememberUser(null);
+    state.currentUser = null;
+    state.view = 'login';
+    render();
+    openModal({
+      type: 'alert',
+      title: '세션이 만료되었습니다',
+      message: `보안을 위해 ${SESSION_MAX_HOURS}시간이 지나면 자동 로그아웃됩니다. 다시 로그인해주세요.`
+    });
+  }
+}, 30 * 60 * 1000);
+
 boot();
 </script>
 </body>
