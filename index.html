@@ -1392,19 +1392,21 @@ async function changeOwnPin(currentPin, newPin) {
 const app = document.getElementById('app');
 
 function render() {
-  // 스크롤 위치 저장
-  const scrollY = window.scrollY;
-  const scrollX = window.scrollX;
+  // 스크롤·포커스 저장
+  const savedScrollY = window.scrollY;
+  const savedScrollX = window.scrollX;
   const colScrolls = [];
-  document.querySelectorAll('.col').forEach((col, i) => {
-    colScrolls[i] = col.scrollTop;
-  });
+  document.querySelectorAll('.col').forEach((col, i) => { colScrolls[i] = col.scrollTop; });
   const dailyEl = document.querySelector('.daily');
   const dailyScroll = dailyEl ? dailyEl.scrollTop : 0;
-  // 포커스 상태 저장
   const focused = document.activeElement;
   const focusedId = focused?.id || null;
   const focusCursor = (focused?.selectionStart !== undefined) ? focused.selectionStart : null;
+
+  // innerHTML 교체 중 스크롤 점프 방지 — 페이지 높이 고정
+  const html = document.documentElement;
+  const prevHeight = html.style.minHeight;
+  html.style.minHeight = html.scrollHeight + 'px';
 
   if (state.view === 'loading') {
     app.innerHTML = '<div style="padding:60px;text-align:center;color:var(--ink-3);">불러오는 중...</div>';
@@ -1418,18 +1420,29 @@ function render() {
   if (state.modal) renderModal(); else removeModal();
   attachGlobalEvents();
 
-  // 스크롤 위치 복원 (비동기로 DOM 반영 후)
+  // 즉시 스크롤 복원 (동기)
+  window.scrollTo(savedScrollX, savedScrollY);
+  document.querySelectorAll('.col').forEach((col, i) => {
+    if (colScrolls[i] !== undefined) col.scrollTop = colScrolls[i];
+  });
+  const newDaily = document.querySelector('.daily');
+  if (newDaily) newDaily.scrollTop = dailyScroll;
+
+  // 높이 고정 해제 + 한 번 더 복원 (안전장치)
   requestAnimationFrame(() => {
-    window.scrollTo(scrollX, scrollY);
+    html.style.minHeight = prevHeight || '';
+    window.scrollTo(savedScrollX, savedScrollY);
     document.querySelectorAll('.col').forEach((col, i) => {
       if (colScrolls[i] !== undefined) col.scrollTop = colScrolls[i];
     });
-    const newDaily = document.querySelector('.daily');
     if (newDaily) newDaily.scrollTop = dailyScroll;
-    // 할 일 입력 필드에 포커스 복원 (입력 중이었으면)
+    // 포커스 복원
     if (focusedId) {
       const el = document.getElementById(focusedId);
-      if (el) { el.focus(); if (focusCursor !== null) try { el.setSelectionRange(focusCursor, focusCursor); } catch {} }
+      if (el) {
+        el.focus({ preventScroll: true });
+        if (focusCursor !== null) try { el.setSelectionRange(focusCursor, focusCursor); } catch {}
+      }
     }
   });
 }
