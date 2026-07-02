@@ -1392,6 +1392,20 @@ async function changeOwnPin(currentPin, newPin) {
 const app = document.getElementById('app');
 
 function render() {
+  // 스크롤 위치 저장
+  const scrollY = window.scrollY;
+  const scrollX = window.scrollX;
+  const colScrolls = [];
+  document.querySelectorAll('.col').forEach((col, i) => {
+    colScrolls[i] = col.scrollTop;
+  });
+  const dailyEl = document.querySelector('.daily');
+  const dailyScroll = dailyEl ? dailyEl.scrollTop : 0;
+  // 포커스 상태 저장
+  const focused = document.activeElement;
+  const focusedId = focused?.id || null;
+  const focusCursor = (focused?.selectionStart !== undefined) ? focused.selectionStart : null;
+
   if (state.view === 'loading') {
     app.innerHTML = '<div style="padding:60px;text-align:center;color:var(--ink-3);">불러오는 중...</div>';
   } else if (state.view === 'login') {
@@ -1403,6 +1417,21 @@ function render() {
   }
   if (state.modal) renderModal(); else removeModal();
   attachGlobalEvents();
+
+  // 스크롤 위치 복원 (비동기로 DOM 반영 후)
+  requestAnimationFrame(() => {
+    window.scrollTo(scrollX, scrollY);
+    document.querySelectorAll('.col').forEach((col, i) => {
+      if (colScrolls[i] !== undefined) col.scrollTop = colScrolls[i];
+    });
+    const newDaily = document.querySelector('.daily');
+    if (newDaily) newDaily.scrollTop = dailyScroll;
+    // 할 일 입력 필드에 포커스 복원 (입력 중이었으면)
+    if (focusedId) {
+      const el = document.getElementById(focusedId);
+      if (el) { el.focus(); if (focusCursor !== null) try { el.setSelectionRange(focusCursor, focusCursor); } catch {} }
+    }
+  });
 }
 
 /* ============================================================
